@@ -6,6 +6,8 @@ use warnings;
 
 use Data::Dumper;
 use String::CRC32;
+use IO::Socket;
+use IO::Socket::INET;
 use constant {
   # packet version identifier
   NRPE_PACKET_VERSION_3   =>  3,
@@ -53,20 +55,23 @@ for (my $i =0; $i < MAX_PACKETBUFFER_LENGTH - (length $buffer); $i++ ) {
 
 # NON CRC32 packet
 my $packet = "$packet_version"."$packet_type"."$crc32_value"."$result_code"."$buffer";
-print "\n";
-packet_dump($packet);
-print "\n";
 
-# CRC32'd packet
-$crc32_value = pack('L',crc32(pack('a*',$packet))); 
-$packet = "\x00"."$packet_version"."$packet_type"."$crc32_value"."$result_code"."$buffer";
-print "\n";
-packet_dump($packet);
-print "\n";
+$crc32_value = pack('l*',~crc32($packet));
+print $crc32_value;
+$packet = "\x00"."$packet_version"."$packet_type"."$crc32_value"."$result_code"."$buffer"."\x00";
 
+# my $socket = IO::Socket::INET->new(PeerAddr => '10.0.0.47',
+# 				   PeerPort => '5666',
+# 				   Proto => 'tcp',
+# 				   Type => SOCK_STREAM) or die "ERROR: $@ \n";
 
+# print $socket "$packet";
 
+# while (<$socket>) {
+#   packet_dump($_);
+# }
 
+# close($socket);
 
 =pod
 

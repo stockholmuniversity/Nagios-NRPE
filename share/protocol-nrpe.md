@@ -44,6 +44,16 @@ Values in the struct can be explained as following for a sent query:
 |               |            |                | randomized data and terminated with \x0         |               |
 ```
 
+TCP Data looks like this:
+
+```
+|-------------+---------+------+-------+------------+----------|
+| BYTE        | 0     1 | 2  3 | 4   7 | 8        9 | 10  1035 |
+|-------------+---------+------+-------+------------+----------|
+| DESCRIPTION | VERSION | TYPE | CRC32 | RESULTCODE | BUFFER   |
+|-------------+---------+------+-------+------------+----------|
+```
+
 # Client Side
 
 A short description of the workflow internal to check_nrpe:
