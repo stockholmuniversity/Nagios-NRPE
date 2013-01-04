@@ -1,0 +1,7 @@
+Nagios::NRPE
+============
+
+An NRPE client and server in pure Perl.
+
+This code is derived from: http://www.stic-online.de/stic/html/nrpe-generic.html
+and POE::Component::Client::NRPE as well as the original C sources.
