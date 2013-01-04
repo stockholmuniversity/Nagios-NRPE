@@ -5,62 +5,99 @@ use strict;
 use warnings;
 
 use Data::Dumper;
-use Getopt::Long;
-use IO::Socket::INET;
-use Pod::Usage;
 use String::CRC32;
-use String::Random;
+use constant {
+  # packet version identifier
+  NRPE_PACKET_VERSION_3   =>  3,
+  NRPE_PACKET_VERSION_2   =>  2,
+  NRPE_PACKET_VERSION_1   =>  1,
 
-our $VERSION = '';
+  # id code for queries and responses to queries
+  QUERY_PACKET            =>  1,
+  RESPONSE_PACKET         =>  2,
+  # max amount of data we'll send in one query/response
+  MAX_PACKETBUFFER_LENGTH => 1024,
 
-my ($host,$command,$port,$ssl);
+  MAX_COMMAND_ARGUMENTS   => 16,
+  NRPE_HELLO_COMMAND      => "_NRPE_CHECK",
+  DEFAULT_SOCKET_TIMEOUT  => 10,
+  DEFAULT_CONNECTION_TIMEOUT => 300,
 
-my $result = GetOptions (
-  "p|port=s"    => \$port,
-  "H|host=s"    => \$host,
-  "c|command=s" => \$command,
-  "s|ssl"       => \$ssl,
-  "h|help"      => sub { pod2usage(-exitval   => 0,
-				   -verbose   => 99,
-				   -noperldoc => 1) });
+  # /* service state return codes */
+  STATE_UNKNOWN           => 3,
+  STATE_CRITICAL          => 2,
+  STATE_WARNING 	  => 1,
+  STATE_OK                => 0
+};
+my ($packet_version,  # Version of NRPE
+    $packet_type,     # Clients = QUERY = 1, Server = RESPONSE = 2
+    $crc32_value,
+    $result_code,     # \x00 on querys
+    $buffer           # buffer text consisting of the check name and its adjacent arguments max 1024 bytes
+);
 
-$port = 5666 unless defined $port;
-$host = "localhost" unless defined $host;
-$ssl = undef unless defined $ssl;
-$command = "check_users" unless defined $command;
+my $command = "check_users";
 
+# packet pre crc32:
+$packet_version = pack('S',NRPE_PACKET_VERSION_2);
+$packet_type = pack('S',QUERY_PACKET);
+$crc32_value = pack('L',0);
+$result_code = pack('S',0);
+$buffer = pack('a[1024]',$command);
 
-
-my $foo = new String::Random;
-my ($packet_version, $packet_type, $crc32_value, $result_code, $buffer);
-
-
-$packet_version = "512";
-$packet_type = "256";
-$crc32_value = "0";
-$result_code = $foo->randregex('[a-z0-9]{6}');
-$buffer = $command;
-
-my $int = length($command);
-
-for (my $i = 0; $i < 1024-$int; $i++) {
-  $buffer .= "\x0";
+# pad buffer with \x00
+for (my $i =0; $i < MAX_PACKETBUFFER_LENGTH - (length $buffer); $i++ ) {
+  my $temp_buffer = unpack('A*',$buffer);
+  $buffer = pack('A*',$temp_buffer,"\x00");
 }
 
-my $packet = pack('S S n S A[1024]',($packet_version, $packet_type, $crc32_value, $result_code, $buffer));
-$crc32_value = crc32($packet);
+# NON CRC32 packet
+my $packet = "$packet_version"."$packet_type"."$crc32_value"."$result_code"."$buffer";
+print "\n";
+packet_dump($packet);
+print "\n";
 
-$packet = pack('S S n S A[1024]',($packet_version, $packet_type, $crc32_value, $result_code, $buffer));
+# CRC32'd packet
+$crc32_value = pack('L',crc32(pack('a*',$packet))); 
+$packet = "\x00"."$packet_version"."$packet_type"."$crc32_value"."$result_code"."$buffer";
+print "\n";
+packet_dump($packet);
+print "\n";
 
-my $socket = IO::Socket::INET->new(PeerAddr => $host,
-				   PeerPort => $port,
-				   Proto => "tcp",
-				   Timeout => 5
-				  );
-$socket->print($packet);
 
-while ($socket->getline()) {
-  print unpack('S S n S A[1024]',$_)
+
+
+
+=pod
+
+Utils Section
+
+=cut
+
+sub packet_dump {
+  my $packet = shift;
+  my ($i, $k, $dump, $l, $ascii, $c);
+
+  for ( $i = 0; $i < length ( $packet ); $i+=16 ) {
+    $l = $i+16;
+    if ( $l > length ( $packet) ) {
+      $l = length($packet);
+    }
+    $dump   = sprintf ( "%04d - %04d: ", $i, $l );
+    $ascii  = "";
+    for ( $k = $i; $k < $l; $k++ ) {
+      $c     = ( ord ( substr ( $packet, $k, 1 ) ) );
+      $dump .= sprintf ( "%02x ", $c );
+      if (( $c >= 32 ) && ( $c <= 126 )) {
+	$ascii .= chr ( $c );
+      } else {
+	$ascii .= ".";
+      }
+    }
+    for ( $k = 0; $k < ( $i + 16 - $l ); $k++ ) {
+      $dump .= "   ";
+    }
+    print( "packet_dump() ".$dump." [".$ascii."]\n" );
+  }
 }
 
-$socket->close;
