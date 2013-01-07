@@ -26,6 +26,8 @@ our $VERSION = '';
 
 use 5.010_000;
 
+use strict;
+use warnings;
 use Data::Dumper;
 use Carp;
 use IO::Socket;
@@ -79,28 +81,39 @@ sub run {
   $packet_version = pack('n',NRPE_PACKET_VERSION_2);
   $packet_type = pack('n',QUERY_PACKET);
   $result_code = pack('n',2324);
-
   $buffer = pack('a[1024]',$self->{check});
 
   my $packet = $packet_version.$packet_type."\x00\x00\x00\x00".$result_code.$buffer."\x00\x00";
 
-  $crc32_value = ~$self->_crc32($packet);
+  $crc32_value = ~_crc32($packet);
   my $packed_crc = pack ( "N", $crc32_value);
 
   $packet = $packet_version.$packet_type.$packed_crc.$result_code.$buffer."\x00\x00";
 
   my $socket = IO::Socket::INET->new(PeerAddr => $self->{host},
-	 			     PeerPort => $self->{port},
+				     PeerPort => $self->{port},
 				     Proto => 'tcp',
-				     Type => SOCK_STREAM) or croak "ERROR: $@ \n";
+				     Type => SOCK_STREAM) or die "ERROR: $@ \n";
+
 
   print $socket $packet;
-  my $response = "";
-  while (<$socket>) {
-    $self->packet_dump($_);
-  }
+  my ($response_version,$response_type,$response_crc32,$response_code,$response_buffer) =
+    unpack("nnNna[1024]",<$socket>);
   close($socket);
 
+  my $response_packet = $response_version.$response_type."\x00\x00\x00\x00".$response_code.$response_buffer;
+  my $response_crc32_check = ~ _crc32($response_packet);
+  if (!$response_crc32_check eq $response_crc32 ) {
+    carp $response_crc32_check ." and ". $response_crc32." dont match!";
+    carp "Will continue anyway";
+  }
+  return {
+    version => $response_version,
+    type => $response_type,
+    crc32 => $response_crc32,
+    code => $response_code,
+    buffer => $response_buffer
+   };
 }
 
 # These functions are derived from http://www.stic-online.de/stic/html/nrpe-generic.html
@@ -178,36 +191,6 @@ sub _crc32 {
   }
   return $crc;
 }
-
-sub packet_dump {
-  my $self = shift;
-  my $packet = shift;
-  my ($i, $k, $dump, $l, $ascii, $c);
-
-  for ( $i = 0; $i < length ( $packet ); $i+=16 ) {
-    $l = $i+16;
-    if ( $l > length ( $packet) ) {
-      $l = length($packet);
-    }
-    $dump   = sprintf ( "%04d - %04d: ", $i, $l );
-    $ascii  = "";
-    for ( $k = $i; $k < $l; $k++ ) {
-      $c     = ( ord ( substr ( $packet, $k, 1 ) ) );
-      $dump .= sprintf ( "%02x ", $c );
-      if (( $c >= 32 ) && ( $c <= 126 )) {
-	$ascii .= chr ( $c );
-      } else {
-	$ascii .= ".";
-      }
-    }
-    for ( $k = 0; $k < ( $i + 16 - $l ); $k++ ) {
-      $dump .= "   ";
-    }
-    print( "packet_dump() ".$dump." [".$ascii."]\n" );
-  }
-}
-
-
 1;
 
 
