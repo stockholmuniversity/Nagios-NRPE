@@ -50,28 +50,31 @@ our $VERSION = '';
 
 my ($host,$port,$check,$ssl,$timeout);
 
+Getopt::Long::Configure('no_ignore_case');
 my $result = GetOptions (
-  "H|host=s" => \$host,
-  "p|port=s" => \$port,
+  "H|host=s"  => \$host,
+  "p|port=s"  => \$port,
   "c|check=s" => \$check,
-  "s|ssl" => \$ssl,
-  "h|help"           => sub { pod2usage(-exitval   => 0,
-					-verbose   => 99,
-					-noperldoc => 1) });
+  "s|ssl"     => \$ssl,
+  "h|help"    => sub { pod2usage(-exitval   => 0,
+                                 -verbose   => 99,
+                                 -noperldoc => 1)
+                     });
 
 
-$ssl = 0 unless defined $ssl;
+$ssl  = 0           unless defined $ssl;
 $host = "localhost" unless defined $host;
-$port = 5666 unless defined $port;
+$port = 5666        unless defined $port;
 die "Error: No check was given" unless defined $check;
 
-my $client = Nagios::NRPE::Client->new( host => $host,
-					port => $port,
-					ssl => $ssl,
-					timeout => 20,
-					arglist => [],
-					check => $check
-				       );
+my $client = Nagios::NRPE::Client->new(
+                host => $host,
+                port => $port,
+                ssl => $ssl,
+                timeout => 20,
+                arglist => [],
+                check => $check
+             );
 my $response = $client->run();
 
 print $response->{buffer}."\n";
