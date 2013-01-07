@@ -39,19 +39,18 @@ my ($packet_version,  # Version of NRPE
 
 my $command = "check_users";
 
-#Hex:  00 02 00 01
+# Packet data
 $packet_version = pack('n',NRPE_PACKET_VERSION_2);
 $packet_type = pack('n',QUERY_PACKET);
-#Hex:
 $result_code = pack('n',2324);
 $buffer = pack('a[1024]',$command);
+
 my $packet = $packet_version.$packet_type."\x00\x00\x00\x00".$result_code.$buffer."\x00\x00";
+
 $crc32_value = ~_crc32($packet);
 my $packed_crc = pack ( "N", $crc32_value);
 
 $packet = $packet_version.$packet_type.$packed_crc.$result_code.$buffer."\x00\x00";
-
-packet_dump($packet);
 
 my $socket = IO::Socket::INET->new(PeerAddr => '10.0.0.47',
 				   PeerPort => '5666',
@@ -61,7 +60,12 @@ my $socket = IO::Socket::INET->new(PeerAddr => '10.0.0.47',
 print $socket $packet;
 
 while (<$socket>) {
-  packet_dump($_);
+  my ($packet_version,$packet_type,$crc32,$result_code,$buffer) = unpack('nnNna*',$_);
+  print "Packet Version: $packet_version\n";
+  print "Packet Type: $packet_type\n";
+  print "CRC32 Checksum: $crc32\n";
+  print "Result_code: $result_code\n";
+  print "Buffer: $buffer\n";
 }
 
 close($socket);
