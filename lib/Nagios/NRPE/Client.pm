@@ -63,7 +63,7 @@ sub new {
   $self->{timeout} = delete $hash{timeout} || 30;
   $self->{arglist} = delete $hash{arglist} || [];
   $self->{check} = delete $hash{check} || "";
-  $self->{ssl} = delete  $hash{ssl} || 5666;
+  $self->{ssl} = delete  $hash{ssl} || 0;
 
   bless $self,$class;
 
@@ -90,10 +90,23 @@ sub run {
 
   $packet = $packet_version.$packet_type.$packed_crc.$result_code.$buffer."\x00\x00";
 
-  my $socket = IO::Socket::INET->new(PeerAddr => $self->{host},
-				     PeerPort => $self->{port},
-				     Proto => 'tcp',
-				     Type => SOCK_STREAM) or die "ERROR: $@ \n";
+  my $socket;
+  if($self->{ssl}) {
+    eval {
+        # required for new IO::Socket::SSL versions
+        require IO::Socket::SSL;
+        IO::Socket::SSL->import();
+        IO::Socket::SSL::set_ctx_defaults( SSL_verify_mode => 0 );
+    };
+    $socket = IO::Socket::SSL->new($self->{host}.':'.$self->{port})
+                    or die(IO::Socket::SSL::errstr());
+  } else {
+    $socket = IO::Socket::INET->new(
+                    PeerAddr => $self->{host},
+                    PeerPort => $self->{port},
+                    Proto    => 'tcp',
+                    Type     => SOCK_STREAM) or die "ERROR: $@ \n";
+  }
 
 
   print $socket $packet;
