@@ -34,28 +34,13 @@ use Data::Dumper;
 use Carp;
 use IO::Socket;
 use IO::Socket::INET;
-use constant {
-  # packet version identifier
-  NRPE_PACKET_VERSION_3   =>  3,
-  NRPE_PACKET_VERSION_2   =>  2,
-  NRPE_PACKET_VERSION_1   =>  1,
-
-  # id code for queries and responses to queries
-  QUERY_PACKET            =>  1,
-  RESPONSE_PACKET         =>  2,
-  # max amount of data we'll send in one query/response
-  MAX_PACKETBUFFER_LENGTH => 1024,
-  MAX_COMMAND_ARGUMENTS   => 16,
-  NRPE_HELLO_COMMAND      => "_NRPE_CHECK",
-  DEFAULT_SOCKET_TIMEOUT  => 10,
-  DEFAULT_CONNECTION_TIMEOUT => 300,
-
-  # /* service state return codes */
-  STATE_UNKNOWN           => 3,
-  STATE_CRITICAL          => 2,
-  STATE_WARNING 	  => 1,
-  STATE_OK                => 0
-};
+use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
+			    NRPE_PACKET_QUERY
+			    MAX_PACKETBUFFER_LENGTH
+			    STATE_UNKNOWN
+			    STATE_CRITICAL
+			    STATE_WARNING
+			    STATE_OK);
 
 =head1 new()
 
@@ -100,9 +85,7 @@ sub new {
   $self->{arglist} = delete $hash{arglist} || [];
   $self->{check} = delete $hash{check} || "";
   $self->{ssl} = delete  $hash{ssl} || 0;
-
   bless $self,$class;
-
 }
 
 =head1 run()
@@ -123,25 +106,6 @@ Runs the communication to the server and returns a hash of the form:
 
 sub run {
   my $self = shift;
-  my ($packet_version,	  # Version of NRPE
-      $packet_type,	  # Clients = QUERY = 1, Server = RESPONSE = 2
-      $crc32_value,
-      $result_code,		# \x00 on querys
-      $buffer # buffer text consisting of the check name and its adjacent arguments max 1024 bytes
-     );
-
-  $packet_version = pack('n',NRPE_PACKET_VERSION_2);
-  $packet_type = pack('n',QUERY_PACKET);
-  $result_code = pack('n',2324);
-  $buffer = pack('a[1024]',$self->{check});
-
-  my $packet = $packet_version.$packet_type."\x00\x00\x00\x00".$result_code.$buffer."\x00\x00";
-
-  $crc32_value = ~_crc32($packet);
-  my $packed_crc = pack ( "N", $crc32_value);
-
-  $packet = $packet_version.$packet_type.$packed_crc.$result_code.$buffer."\x00\x00";
-
   my $socket;
   if($self->{ssl}) {
     eval {
@@ -159,26 +123,19 @@ sub run {
                     Proto    => 'tcp',
                     Type     => SOCK_STREAM) or die "ERROR: $@ \n";
   }
+  
+  my $packet = Nagios::NRPE::Packet->new();
+  my $response;
+  print $socket $packet->assemble(type => NRPE_PACKET_QUERY,
+				  check => $self->{check},
+				  version => NRPE_PACKET_VERSION_2 );
 
-
-  print $socket $packet;
-  my ($response_version,$response_type,$response_crc32,$response_code,$response_buffer) =
-    unpack("nnNna[1024]",<$socket>);
+  while (<$socket>) {
+    $response .= $_;
+  }
   close($socket);
 
-  my $response_packet = $response_version.$response_type."\x00\x00\x00\x00".$response_code.$response_buffer;
-  my $response_crc32_check = ~ _crc32($response_packet);
-  if (!$response_crc32_check eq $response_crc32 ) {
-    carp $response_crc32_check ." and ". $response_crc32." dont match!";
-    carp "Will continue anyway";
-  }
-  return {
-    version => $response_version,
-    type => $response_type,
-    crc32 => $response_crc32,
-    code => $response_code,
-    buffer => $response_buffer
-   };
+  return $packet->deassemble($response);
 }
 
 # These functions are derived from http://www.stic-online.de/stic/html/nrpe-generic.html
@@ -256,7 +213,41 @@ sub _crc32 {
   }
   return $crc;
 }
+
+sub packet_dump
+  {
+    my $packet = shift;
+    my $i;
+    my $k;
+    my $dump;  
+    my $l;
+    my $ascii;
+    my $c;
+    for ( $i = 0; $i < length ( $packet ); $i+=16 ) {
+      $l = $i+16;
+      if ( $l > length ( $packet) ) {
+	$l = length($packet);
+      }
+      $dump   = sprintf ( "%04d - %04d: ", $i, $l );
+      $ascii  = "";
+      for ( $k = $i; $k < $l; $k++ ) {
+	$c     = ( ord ( substr ( $packet, $k, 1 ) ) );
+	$dump .= sprintf ( "%02x ", $c );
+	if (( $c >= 32 ) && ( $c <= 126 )) {
+	  $ascii .= chr ( $c );
+	} else {
+	  $ascii .= ".";
+	} 
+      }
+      for ( $k = 0; $k < ( $i + 16 - $l ); $k++ ) {
+	$dump .= "   ";
+      }
+      print ( "packet_dump() ".$dump." [".$ascii."]"."\n"); 
+    }
+  }
+
 1;
+
 
 
 
