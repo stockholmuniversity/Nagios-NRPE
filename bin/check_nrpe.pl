@@ -44,6 +44,7 @@ use warnings;
 
 use Getopt::Long;
 use Pod::Usage;
+use Data::Dumper;
 use Nagios::NRPE::Client;
 
 our $VERSION = '';
@@ -65,6 +66,7 @@ my $result = GetOptions (
 $ssl  = 0           unless defined $ssl;
 $host = "localhost" unless defined $host;
 $port = 5666        unless defined $port;
+
 die "Error: No check was given" unless defined $check;
 
 my $client = Nagios::NRPE::Client->new(
@@ -72,7 +74,7 @@ my $client = Nagios::NRPE::Client->new(
                 port => $port,
                 ssl => $ssl,
                 timeout => 20,
-                arglist => [],
+                arglist => \@ARGV,
                 check => $check
              );
 my $response = $client->run();

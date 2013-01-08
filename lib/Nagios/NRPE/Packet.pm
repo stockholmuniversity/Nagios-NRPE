@@ -213,6 +213,9 @@ sub deassemble{
   return $unpacked;
 }
 
+# These functions are derived from http://www.stic-online.de/stic/html/nrpe-generic.html
+# Copyright (C) 2006, 2007 STIC GmbH, http://www.stic-online.de
+# Licensed under GPLv2
 sub _crc32 {
   my $crc;
   my $len;
