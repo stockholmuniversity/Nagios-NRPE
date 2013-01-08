@@ -3,5 +3,7 @@ Build.PL
 share/protocol-nrpe.md
 bin/check_nrpe.pl
 README
+Changes
 lib/Nagios/NRPE/Client.pm
 lib/Nagios/NRPE/Packet.pm
+lib/Nagios/NRPE.pm

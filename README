@@ -1,7 +1,42 @@
-Nagios::NRPE
+Nagios::NRPE 
 ============
 
-An NRPE client and server in pure Perl.
+An implementation of NRPE in pure perl
 
-This code is derived from: http://www.stic-online.de/stic/html/nrpe-generic.html
-and POE::Component::Client::NRPE as well as the original C sources.
+INSTALLATION
+------------
+
+To install it: 
+
+   perl Build.PL
+   ./Build
+   make install
+
+SCRIPTS
+-------
+
+Inside bin/ you'll find an implementation of the check_nrpe binary normally
+shipped with Nagios' nrpe server.
+
+DOCUMENTATION
+-------------
+
+Every module shipped with this package has a full documentation in pod format. 
+To read it use perldoc like this:
+   
+   perldoc Nagios::NRPE::Client
+
+In the case of problems or appreciation please visit these URLs
+
+*   [RT, CPAN's request tracker](http://rt.cpan.org/NoAuth/Bugs.html?Dist=Nagios-NRPE) # NOT YET
+
+*   [CPAN Ratings](http://cpanratings.perl.org/d/Nagios-NRPE)
+
+*   [Search CPAN](http://search.cpan.org/dist/Nagios-NRPE)
+
+*   [Github repository](https://github.com/andreas-marschke/nagios-nrpe/)
+
+COPYRIGHT AND LICENSE
+---------------------
+
+

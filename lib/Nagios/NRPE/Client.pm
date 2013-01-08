@@ -24,7 +24,7 @@ This Perl Module implements Version 2 of the NRPE-Protocol. With this module you
 
 package Nagios::NRPE::Client;
 
-our $VERSION = '';
+our $VERSION = '0.001';
 
 use 5.010_000;
 

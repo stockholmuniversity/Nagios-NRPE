@@ -99,7 +99,7 @@ States returned by the check
 
 package Nagios::NRPE::Packet;
 
-our $VERSION = '0.1';
+our $VERSION = '0.001';
 
 use 5.010_000;
 require Exporter;
