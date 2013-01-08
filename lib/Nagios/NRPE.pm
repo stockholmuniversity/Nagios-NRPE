@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+Nagios::NRPE - A Nagios NRPE implementation in pure perl
+
+=head1 SYNOPSIS
+
+ # Executing a check on an NRPE-Server
+ use Nagios::NRPE::Client;
+
+ my $client = Nagios::NRPE::Client->new( host => "localhost", check => 'check_cpu');
+ my $response = $client->run();
+ if(defined $response->{error}) {
+   print "ERROR: Couldn't run check ".$client->check()." because of: "$response->{reason}."\n";
+ } else {
+   print $response->{status}."\n";
+ }
+
+ # Reading and Writing Nagios NRPE Packets
+
+ use IO::Socket;
+ use IO::Socket::INET;
+ # Import necessary constants into Namespace
+ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
+		             NRPE_PACKET_QUERY
+		             MAX_PACKETBUFFER_LENGTH
+		             STATE_UNKNOWN
+		             STATE_CRITICAL
+		             STATE_WARNING
+		             STATE_OK);
+
+ my $packet = Nagios::NRPE::Packet->new();
+
+ my $socket = IO::Socket::INET->new(
+                    PeerAddr => $host,
+                    PeerPort => $port,
+                    Proto    => 'tcp',
+                    Type     => SOCK_STREAM) or die "ERROR: $@ \n";
+
+ print $socket $packet->assemble(type => QUERY_PACKET,
+                              buffer => "check_load 1 2 3",
+                              version => NRPE_PACKET_VERSION_2 );
+
+ my $data = <$socket>
+ my $response = $packet->deassemble($data);
+
+ print $response->{buffer};
+
+
+=cut
+
+package Nagios::NRPE;
+
+our $VERSION = '0.001';
+
+1;
