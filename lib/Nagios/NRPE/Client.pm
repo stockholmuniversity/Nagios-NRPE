@@ -44,6 +44,8 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
 
 =head1 new()
 
+Constructor for the Nagios::NRPE::Client Object
+
 =head2 example
 
  my $client = Nagios::NRPE::Client->new( host => "localhost", check => 'check_cpu');
