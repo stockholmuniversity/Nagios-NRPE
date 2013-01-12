@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Test::More tests => 19;
+use Test::More tests => 18;
 use Data::Dumper;
 use lib qw(../lib);
 
@@ -50,4 +50,4 @@ my $deassembly = $packet->deassemble($assembly);
 is($deassembly->{packet_type}, NRPE_PACKET_QUERY);
 is($deassembly->{packet_version}, NRPE_PACKET_VERSION_2);
 is($deassembly->{buffer}, "check_load");
-is(~$packet->crc32('\x00\x00\x00\x00' , 18446744069651080646,'checksumming is working' );
+
