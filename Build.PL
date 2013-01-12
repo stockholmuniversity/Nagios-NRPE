@@ -21,8 +21,15 @@ my $build = Module::Build->new(
   configure_requires => {
     'Module::Build' => '0.31',
   },
-  build_requires => {},
-  requires => {},
+  build_requires => {
+    "Test::More" => 0,
+  },
+  requires => {
+    "Convert::Binary::C" => 0,
+    "constant" => 0,
+    "IO::Socket" => 0,
+    "IO::Socket::INET" => 0
+  },
   dynamic_config => 0,
   recursive_test_files => 1,
   create_license => 1,
