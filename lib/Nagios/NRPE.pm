@@ -47,6 +47,10 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
 
  print $response->{buffer};
 
+=head1 DESCRIPTION
+
+This file currently only serves as a stub so Build.PL will find it. For more information on
+the submodules please read Nagios::NRPE::Client or Nagios::NRPE::Packet or Nagios::NRPE::Daemon.
 
 =cut
 
