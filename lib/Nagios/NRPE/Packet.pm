@@ -126,7 +126,6 @@ BEGIN {
 use warnings;
 use strict;
 use Carp;
-use Data::Dumper;
 use Convert::Binary::C;
 use constant {
   # packet version identifier
@@ -186,7 +185,7 @@ sub assemble{
 
   my $packed = $self->{c}->pack('Packet',$unpacked);
 
-  $unpacked->{crc32_value} = ~ _crc32($packed);
+  $unpacked->{crc32_value} = ~ crc32($packed);
 
   return $self->{c}->pack('Packet',$unpacked);
 }
@@ -200,7 +199,7 @@ sub validate {
   packet_dump($checksum);
   $unpacked->{crc32_value} = "\x00\x00\x00\x00";
   my $packed = $self->{c}->pack('Packet',$unpacked);
-  if (not ~ _crc32($packed) eq $checksum) {
+  if (not ~ crc32($packed) eq $checksum) {
     return undef;
   }else {
     return 1;
@@ -216,7 +215,7 @@ sub deassemble{
 # These functions are derived from http://www.stic-online.de/stic/html/nrpe-generic.html
 # Copyright (C) 2006, 2007 STIC GmbH, http://www.stic-online.de
 # Licensed under GPLv2
-sub _crc32 {
+sub crc32 {
   my $crc;
   my $len;
   my $i;
