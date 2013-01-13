@@ -67,6 +67,61 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
 			    STATE_WARNING
 			    STATE_OK);
 
+=over
+
+=item new()
+
+Takes the following options as a hashref:
+
+=item * listen:
+
+Listen on this IP Address
+
+=item * port:
+
+Port to listen on
+
+=item * pid_dir
+
+The pidfile for this daemon
+
+=item * ssl
+
+Use ssl (1|0)
+
+=item * commandlist
+
+A hashref of the allowed commands on the daemon
+
+=item * callback
+
+A sub executed everytime a check should be run. Giving the daemon full control what should happen.
+
+ my $callback = sub {
+   my ($self,$check,@options) = @_;
+   my $commandlist = $self->commandlist();
+   if ($commandlist->{$check}) {
+     my $args = $commandlist->{$check}->{args};
+     my $i = 0;
+     foreach (@options) {
+       $i++;
+       $args =~ "s/\$ARG$i\$/$_/";
+     }
+     my $buffer;
+     if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
+ 		    verbose => 0,
+		    buffer => \$buffer,
+		    timeout => 20)) {
+       return $buffer;
+     }
+   }
+ };
+
+
+=back
+
+=cut
+
 sub new {
   my ($class,%hash) = @_;
   my $self = {};
@@ -80,6 +135,16 @@ sub new {
 
   bless $self,$class;
 }
+
+=over
+
+=item start
+
+Starts the server and enters the Loop listening for packets
+
+=back
+
+=cut
 
 sub start{
   my $self = shift;
@@ -109,14 +174,36 @@ sub start{
   }
 }
 
-sub stop {
-  my $self = shift;
-}
+=over
 
+=item commandlist
+
+A hashref of elements that are valid commands.
+An example for it is:
+
+ "check_cpu" => { bin => "/usr/lib/nagios/plugin/check_cpu",
+                  args => "-w 50 -c 80" }
+
+C<args> can contain $ARG1$ elements like normal nrpe.cfg command elements.
+
+=back
+
+=cut
 sub commandlist {
   my $self = shift;
   return $self->{commandlist};
 }
+
+=over
+
+=item create_socket
+
+A shorthand function returning either an encrypted or unencrypted socket
+depending on wether ssl is set to 1 or 0.
+
+=back
+
+=cut
 
 sub create_socket {
   my $self = shift;

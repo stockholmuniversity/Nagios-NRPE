@@ -39,22 +39,65 @@ Nagios::NRPE::Packet - Assembly and de-assembly of an NRPE packet
 This class is meant to be used when an active connection exists and is ready to send the
 packet.
 
+=head1 CONSTRUCTION
+
+=over
+
+=item new
+
+Takes the following options as a hashref
+
 =head1 FUNCTIONS
 
 Following functions can be used after the creation of the packet
 
-=head2 assemble
+=over 2
 
-Takes a hash of options defining the details of a packet.
+=item * assemble
 
-=head2 deassemble
+Takes a hash of options defining the packet to be sent and returns the assembled packet. You can print this
+to an open socket and send it to either a server or the client depending on your situation.
 
-Takes data from a scalar and returns a hash of the information present in a package
+ check
 
-=head2 validate($packet)
+A string defining the check to be run or the output of a check eg: "check_cpu"
+NOTE: Nagios can accept arguments appended to the check in the form: "check_somecheck!ARG1!ARG2!ARG..."
+
+ version
+
+The NRPE version you want to use (currently only V2 is accepted).
+
+See CONSTANTS for options here.
+
+ type
+
+The TYPE of packet you wish to send, which is either QUERY or RESPONSE.
+
+See CONSTANTS for options here.
+
+ result_code
+
+This is a curios value as it seems to have no apparent affect on neither the server nor the client.
+
+A set value is 2324.
+
+=item * deassemble
+
+Takes a packet recieved by either client or server and deassembles them. The returned hashref contains 
+the following values:
+   
+=item packet_type
+
+ crc32_value
+ result_code
+ buffer
+
+=item * validate($packet)
 
 Validates the contents of a packet using CRC32 checksumming. Returns undef
 if not succesful.
+
+=back
 
 =head1 CONSTANTS
 
@@ -62,38 +105,41 @@ These constants can be exported upon request with the 'use' pragma like this:
 
  # Will only import the constant NRPE_PACKET_VERSION_2 into your namespace
  use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2);
+=over 2
 
-=head2 NRPE_PACKET_VERSION_3
-       NRPE_PACKET_VERSION_2
-       NRPE_PACKET_VERSION_1
+=item * NRPE_PACKET_VERSION_3
+        NRPE_PACKET_VERSION_2
+        NRPE_PACKET_VERSION_1
 
 The value of the NRPE version you want/need to use.
 
-=head2 QUERY_PACKET
-       RESPONSE_PACKET
+=item * QUERY_PACKET
+        RESPONSE_PACKET
 
 The packet type you want to send or recieve
 
-=head2 MAX_PACKETBUFFER_LENGTH
-       MAX_COMMAND_ARGUMENTS
+=item * MAX_PACKETBUFFER_LENGTH
+        MAX_COMMAND_ARGUMENTS
 
 A threshhold on the send data
 
-=head2 NRPE_HELLO_COMMAND
+=item * NRPE_HELLO_COMMAND
 
 unknown
 
-=head2 DEFAULT_SOCKET_TIMEOUT
-       DEFAULT_CONNECTION_TIMEOUT
+=item * DEFAULT_SOCKET_TIMEOUT
+        DEFAULT_CONNECTION_TIMEOUT
 
 The default timeout for a connection and its corresponding socket
 
-=head2 STATE_UNKNOWN
-       STATE_CRITICAL
-       STATE_WARNING
-       STATE_OK
+=item * STATE_UNKNOWN
+        STATE_CRITICAL
+        STATE_WARNING
+        STATE_OK
 
 States returned by the check
+
+=back
 
 =cut
 
@@ -181,7 +227,6 @@ sub assemble{
   $unpacked->{packet_type}    = $options{type}    || NRPE_PACKET_QUERY;
   $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
   $unpacked->{result_code}    = $options{result_code}    || 2324;
-  $unpacked->{padding}        = "\x00\x00";
 
   my $packed = $self->{c}->pack('Packet',$unpacked);
 
@@ -211,6 +256,14 @@ sub deassemble{
   my $unpacked = $self->{c}->unpack('Packet',$packet);
   return $unpacked;
 }
+
+=pod
+
+=item crc32
+
+Checksumming for the packet. Necessary for sending a valid Packet.
+
+=cut
 
 # These functions are derived from http://www.stic-online.de/stic/html/nrpe-generic.html
 # Copyright (C) 2006, 2007 STIC GmbH, http://www.stic-online.de
@@ -286,6 +339,14 @@ sub crc32 {
   }
   return $crc;
 }
+
+=pod
+
+=item packet_dump
+
+Debugging function for hexdumping a binary string.
+
+=cut
 
 sub packet_dump
   {

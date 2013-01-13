@@ -42,42 +42,47 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
 			    STATE_WARNING
 			    STATE_OK);
 
-=head1 new()
+=head1 SUBROUTINES
+
+=over 2
+
+=item new()
 
 Constructor for the Nagios::NRPE::Client Object
 
-=head2 example
+ example
 
  my $client = Nagios::NRPE::Client->new( host => "localhost", check => 'check_cpu');
 
 Takes a hash of options:
 
-=head2 host => <hostname or IP>
+=item host => <hostname or IP>
 
 The hostname or IP on which the NRPE-Server is running
 
-=head2 port => <Portnumber>
+=item port => <Portnumber>
 
 The port number at which the NRPE-Server is listening
 
-=head2 timeout => <number in seconds>
+=item timeout => <number in seconds>
 
 Timeout for TCP/IP communication
 
-=head2 arglist => ["arg","uments"]
+=item arglist => ["arg","uments"]
 
 List of arguments attached to the check
 
-=head2 check => "check_command"
+=item check => "check_command"
 
 Command defined in the nrpe.cfg on the NRPE-Server
 
-=head2 ssl => 0,1
+=item ssl => 0,1
 
 Use or don't use SSL
 
-=cut
+=back
 
+=cut
 sub new {
   my ($class,%hash) = @_;
   my $self = {};
@@ -90,11 +95,15 @@ sub new {
   bless $self,$class;
 }
 
-=head1 run()
+=over 2
+
+=item run()
+
+Runs the communication to the server and returns a hash of the form:
 
   my $response = $client->run();
 
-Runs the communication to the server and returns a hash of the form:
+The output should be a hashref of this form:
 
   {
     version => NRPE_VERSION,
@@ -104,8 +113,9 @@ Runs the communication to the server and returns a hash of the form:
     buffer => CHECK_OUTPUT
   }
 
-=cut
+=back
 
+=cut
 sub run {
   my $self = shift;
   my $check;
