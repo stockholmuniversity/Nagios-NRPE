@@ -239,7 +239,6 @@ sub validate {
   my ($self,$packet) = @_;
   packet_dump($packet);
   my $unpacked = $self->{c}->unpack('Packet',$packet);
-  print Dumper($unpacked);
   my $checksum = $unpacked->{crc32_value};
   packet_dump($checksum);
   $unpacked->{crc32_value} = "\x00\x00\x00\x00";

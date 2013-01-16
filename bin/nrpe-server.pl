@@ -117,12 +117,13 @@ my $daemon = Nagios::NRPE::Daemon->new(listen => $listen,
 							  verbose => 0,
 							  buffer => \$buffer,
 							  timeout => 20)) {
+					     chomp $buffer;
 					     return $buffer;
 					   }
 					 }
 				       }
 				      );
 
-open(my $FH, "<", "input.txt");
-print $FH threads->new($daemon->start());
-close $FH;
+
+threads->new($daemon->start());
+

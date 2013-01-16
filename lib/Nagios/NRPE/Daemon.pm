@@ -151,6 +151,7 @@ sub start{
   my $packet = Nagios::NRPE::Packet->new();
   my $callback = $self->{callback};
   my ($socket,$s);
+
   $socket = $self->create_socket();
 
   while (1) {
@@ -162,8 +163,6 @@ sub start{
       my ($command,@options) = split /!/,$buffer;
 
       my $return = $self->{callback}($self,$command,@options);
-
-      print Dumper($unpacked_request);
       print $s $packet->assemble(version =>NRPE_PACKET_VERSION_2,
 				 type => NRPE_PACKET_RESPONSE,
 				 check => $return
