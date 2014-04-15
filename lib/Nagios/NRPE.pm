@@ -52,6 +52,13 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
 This file currently only serves as a stub so Build.PL will find it. For more information on
 the submodules please read Nagios::NRPE::Client or Nagios::NRPE::Packet or Nagios::NRPE::Daemon.
 
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Andreas Marschke <andreas.marschke@googlemail.com>.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
 
 package Nagios::NRPE;

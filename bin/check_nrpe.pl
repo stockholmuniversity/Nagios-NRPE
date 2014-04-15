@@ -34,6 +34,13 @@ The check command defined in the nrpe.cfg file you would like to trigger
 
 This help.
 
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Andreas Marschke <andreas.marschke@googlemail.com>.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
 
 
