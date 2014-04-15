@@ -23,6 +23,7 @@ my $build = Module::Build->new(
   },
   build_requires => {
     "Test::More" => 0,
+    "Test::Pod::Coverage" => 0
   },
   requires => {
     "Convert::Binary::C" => 0,
