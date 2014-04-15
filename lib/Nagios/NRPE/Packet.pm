@@ -178,6 +178,7 @@ BEGIN {
 
 use warnings;
 use strict;
+
 use Carp;
 use Convert::Binary::C;
 use constant {

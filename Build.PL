@@ -26,6 +26,7 @@ my $build = Module::Build->new(
     "Test::Pod::Coverage" => 0
   },
   requires => {
+    "perl" => "5.010_000",
     "Convert::Binary::C" => 0,
     "constant" => 0,
     "IO::Socket" => 0,

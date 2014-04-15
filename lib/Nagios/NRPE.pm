@@ -63,6 +63,9 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE;
 
+use strict;
+use warnings;
+
 our $VERSION = '0.001';
 
 1;
