@@ -47,6 +47,8 @@ packet.
 
 Takes the following options as a hashref
 
+=back
+
 =head1 FUNCTIONS
 
 Following functions can be used after the creation of the packet
@@ -85,8 +87,8 @@ A set value is 2324.
 
 Takes a packet recieved by either client or server and deassembles them. The returned hashref contains 
 the following values:
-   
-=item packet_type
+
+=item * packet_type
 
  crc32_value
  result_code
@@ -105,6 +107,7 @@ These constants can be exported upon request with the 'use' pragma like this:
 
  # Will only import the constant NRPE_PACKET_VERSION_2 into your namespace
  use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2);
+
 =over 2
 
 =item * NRPE_PACKET_VERSION_3
@@ -152,7 +155,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Packet;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 use 5.010_000;
 require Exporter;
@@ -266,9 +269,13 @@ sub deassemble{
 
 =pod
 
+=over
+
 =item crc32
 
 Checksumming for the packet. Necessary for sending a valid Packet.
+
+=back
 
 =cut
 
@@ -349,9 +356,13 @@ sub crc32 {
 
 =pod
 
+=over
+
 =item packet_dump
 
 Debugging function for hexdumping a binary string.
+
+=back
 
 =cut
 
@@ -388,4 +399,3 @@ sub packet_dump
   }
 
 1;
-

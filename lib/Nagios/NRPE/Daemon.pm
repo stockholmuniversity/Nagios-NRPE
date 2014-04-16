@@ -43,6 +43,7 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
    },
    callback => $callback
  );
+
 =head1 DESCRIPTION
 
 A simple daemon implementation with the capabillity to add your own callbacks 
@@ -59,7 +60,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Daemon;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 use 5.010_000;
 
@@ -84,27 +85,27 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
 
 Takes the following options as a hashref:
 
-=item * listen:
+=item listen:
 
 Listen on this IP Address
 
-=item * port:
+=item port:
 
 Port to listen on
 
-=item * pid_dir
+=item pid_dir
 
 The pidfile for this daemon
 
-=item * ssl
+=item ssl
 
 Use ssl (1|0)
 
-=item * commandlist
+=item commandlist
 
 A hashref of the allowed commands on the daemon
 
-=item * callback
+=item callback
 
 A sub executed everytime a check should be run. Giving the daemon full control what should happen.
 
@@ -199,6 +200,7 @@ C<args> can contain $ARG1$ elements like normal nrpe.cfg command elements.
 =back
 
 =cut
+
 sub commandlist {
   my $self = shift;
   return $self->{commandlist};

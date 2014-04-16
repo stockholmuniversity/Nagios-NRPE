@@ -1,3 +1,6 @@
+0.003 2014-04-16
+ - Fix Pod errors
+
 0.002 2014-04-15
  - Fix kwalitee errors
  - Build.PL add Test::Podcoverage to build requirements

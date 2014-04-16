@@ -31,7 +31,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Client;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 use 5.010_000;
 
@@ -91,6 +91,7 @@ Use or don't use SSL
 =back
 
 =cut
+
 sub new {
   my ($class,%hash) = @_;
   my $self = {};
@@ -124,6 +125,7 @@ The output should be a hashref of this form:
 =back
 
 =cut
+
 sub run {
   my $self = shift;
   my $check;
