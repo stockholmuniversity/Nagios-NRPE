@@ -18,7 +18,7 @@ Nagios::NRPE::Client - A Nagios NRPE client
 
 =head1 DESCRIPTION
 
-This Perl Module implements Version 2 of the NRPE-Protocol. With this module you can execute 
+This Perl Module implements Version 2 of the NRPE-Protocol. With this module you can execute
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -139,12 +139,18 @@ sub run {
   if($self->{ssl}) {
     eval {
         # required for new IO::Socket::SSL versions
-        require IO::Socket::SSL;
-        IO::Socket::SSL->import();
-        IO::Socket::SSL::set_ctx_defaults( SSL_verify_mode => 0 );
+        use IO::Socket::SSL;
     };
-    $socket = IO::Socket::SSL->new($self->{host}.':'.$self->{port})
-                    or die(IO::Socket::SSL::errstr());
+
+        $socket = IO::Socket::SSL->new(
+        # where to connect
+        PeerHost => $self->{host},
+        PeerPort => $self->{port},
+	SSL_verify_mode => SSL_VERIFY_NONE,
+	SSL_version => 'TLSv1',
+	SSL_cipher_list => 'ADH'
+	) or die "failed connect or ssl handshake: $!,$SSL_ERROR";
+
   } else {
     $socket = IO::Socket::INET->new(
                     PeerAddr => $self->{host},
