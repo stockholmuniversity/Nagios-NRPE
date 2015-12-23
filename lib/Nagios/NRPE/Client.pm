@@ -146,10 +146,10 @@ sub run {
         # where to connect
         PeerHost => $self->{host},
         PeerPort => $self->{port},
-	SSL_verify_mode => SSL_VERIFY_NONE,
-	SSL_version => 'TLSv1',
-	SSL_cipher_list => 'ADH'
-	) or die "failed connect or ssl handshake: $!,$SSL_ERROR";
+        SSL_verify_mode => SSL_VERIFY_NONE,
+        SSL_version => 'TLSv1',
+        SSL_cipher_list => 'ADH'
+        ) or die "failed connect or ssl handshake: $!,$SSL_ERROR";
 
   } else {
     $socket = IO::Socket::INET->new(
