@@ -142,14 +142,14 @@ sub run {
         use IO::Socket::SSL;
     };
 
-        $socket = IO::Socket::SSL->new(
+    $socket = IO::Socket::SSL->new(
         # where to connect
         PeerHost => $self->{host},
         PeerPort => $self->{port},
         SSL_verify_mode => SSL_VERIFY_NONE,
         SSL_version => 'TLSv1',
         SSL_cipher_list => 'ADH'
-        ) or die "failed connect or ssl handshake: $!,$SSL_ERROR";
+    ) or die "failed connect or ssl handshake: $!,$SSL_ERROR";
 
   } else {
     $socket = IO::Socket::INET->new(
@@ -162,8 +162,8 @@ sub run {
   my $packet = Nagios::NRPE::Packet->new();
   my $response;
   print $socket $packet->assemble(type => NRPE_PACKET_QUERY,
-				  check => $check,
-				  version => NRPE_PACKET_VERSION_2 );
+                                  check => $check,
+                                  version => NRPE_PACKET_VERSION_2 );
 
   while (<$socket>) {
     $response .= $_;

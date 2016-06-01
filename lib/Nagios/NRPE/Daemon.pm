@@ -24,9 +24,9 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
      }
      my $buffer;
      if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
- 		    verbose => 0,
-		    buffer => \$buffer,
-		    timeout => 20)) {
+                    verbose => 0,
+                    buffer => \$buffer,
+                    timeout => 20)) {
        return $buffer;
      }
    }
@@ -72,12 +72,12 @@ use Carp;
 use IO::Socket;
 use IO::Socket::INET;
 use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
-			    NRPE_PACKET_RESPONSE
-			    MAX_PACKETBUFFER_LENGTH
-			    STATE_UNKNOWN
-			    STATE_CRITICAL
-			    STATE_WARNING
-			    STATE_OK);
+                            NRPE_PACKET_RESPONSE
+                            MAX_PACKETBUFFER_LENGTH
+                            STATE_UNKNOWN
+                            STATE_CRITICAL
+                            STATE_WARNING
+                            STATE_OK);
 
 =over
 
@@ -121,9 +121,9 @@ A sub executed everytime a check should be run. Giving the daemon full control w
      }
      my $buffer;
      if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
- 		    verbose => 0,
-		    buffer => \$buffer,
-		    timeout => 20)) {
+                    verbose => 0,
+                    buffer => \$buffer,
+                    timeout => 20)) {
        return $buffer;
      }
    }
@@ -176,9 +176,9 @@ sub start{
 
       my $return = $self->{callback}($self,$command,@options);
       print $s $packet->assemble(version =>NRPE_PACKET_VERSION_2,
-				 type => NRPE_PACKET_RESPONSE,
-				 check => $return
-				);
+                                 type => NRPE_PACKET_RESPONSE,
+                                 check => $return
+                                );
 
       close($s);
     }
@@ -249,13 +249,3 @@ sub create_socket {
   return $socket;
 }
 1;
-
-
-
-
-
-
-
-
-
-

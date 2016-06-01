@@ -10,12 +10,12 @@ Nagios::NRPE::Packet - Assembly and de-assembly of an NRPE packet
  use IO::Socket::INET;
  # Import necessary constants into Namespace
  use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
-		             NRPE_PACKET_QUERY
-		             MAX_PACKETBUFFER_LENGTH
-		             STATE_UNKNOWN
-		             STATE_CRITICAL
-		             STATE_WARNING
-		             STATE_OK);
+                             NRPE_PACKET_QUERY
+                             MAX_PACKETBUFFER_LENGTH
+                             STATE_UNKNOWN
+                             STATE_CRITICAL
+                             STATE_WARNING
+                             STATE_OK);
 
  my $packet = Nagios::NRPE::Packet->new();
 
@@ -164,19 +164,19 @@ require overload;
 BEGIN {
   @ISA = qw(Exporter);
   @EXPORT_OK = qw(NRPE_PACKET_VERSION_3
-		  NRPE_PACKET_VERSION_2
-		  NRPE_PACKET_VERSION_1
-		  NRPE_PACKET_QUERY
-		  NRPE_PACKET_RESPONSE
-		  MAX_PACKETBUFFER_LENGTH
-		  MAX_COMMAND_ARGUMENTS
-		  NRPE_HELLO_COMMAND
-		  DEFAULT_SOCKET_TIMEOUT
-		  DEFAULT_CONNECTION_TIMEOUT
-		  STATE_UNKNOWN
-		  STATE_CRITICAL
-		  STATE_WARNING
-		  STATE_OK);
+                  NRPE_PACKET_VERSION_2
+                  NRPE_PACKET_VERSION_1
+                  NRPE_PACKET_QUERY
+                  NRPE_PACKET_RESPONSE
+                  MAX_PACKETBUFFER_LENGTH
+                  MAX_COMMAND_ARGUMENTS
+                  NRPE_HELLO_COMMAND
+                  DEFAULT_SOCKET_TIMEOUT
+                  DEFAULT_CONNECTION_TIMEOUT
+                  STATE_UNKNOWN
+                  STATE_CRITICAL
+                  STATE_WARNING
+                  STATE_OK);
 }
 
 use warnings;
@@ -378,21 +378,21 @@ sub packet_dump
     for ( $i = 0; $i < length ( $packet ); $i+=16 ) {
       $l = $i+16;
       if ( $l > length ( $packet) ) {
-	$l = length($packet);
+        $l = length($packet);
       }
       $dump   = sprintf ( "%04d - %04d: ", $i, $l );
       $ascii  = "";
       for ( $k = $i; $k < $l; $k++ ) {
-	$c     = ( ord ( substr ( $packet, $k, 1 ) ) );
-	$dump .= sprintf ( "%02x ", $c );
-	if (( $c >= 32 ) && ( $c <= 126 )) {
-	  $ascii .= chr ( $c );
-	} else {
-	  $ascii .= ".";
-	} 
+        $c     = ( ord ( substr ( $packet, $k, 1 ) ) );
+        $dump .= sprintf ( "%02x ", $c );
+        if (( $c >= 32 ) && ( $c <= 126 )) {
+          $ascii .= chr ( $c );
+        } else {
+          $ascii .= ".";
+        } 
       }
       for ( $k = 0; $k < ( $i + 16 - $l ); $k++ ) {
-	$dump .= "   ";
+        $dump .= "   ";
       }
       print ( "packet_dump() ".$dump." [".$ascii."]"."\n"); 
     }
