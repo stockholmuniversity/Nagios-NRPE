@@ -53,8 +53,8 @@ my $result = GetOptions (
   "P|pid=s"    => \$pid_cmd,
   "s|ssl"      => \$ssl_cmd,
   "h|help"     => sub { pod2usage(-exitval   => 0,
-				  -verbose   => 99,
-				  -noperldoc => 1) });
+                                  -verbose   => 99,
+                                  -noperldoc => 1) });
 
 my($listen,
    $port,
@@ -105,32 +105,31 @@ foreach (keys %$commandlist) {
 }
 
 my $daemon = Nagios::NRPE::Daemon->new(listen => $listen,
-				       port   => $port,
-				       pid_dir => $pid,
-				       ssl => $ssl,
-				       commandlist => $commandlist,
-				       callback => sub {
-					 my ($self,$check,@options) = @_;
-					 my $commandlist = $self->commandlist();
-					 if ($commandlist->{$check}) {
-					   my $args = $commandlist->{$check}->{args};
-					   my $i = 0;
-					   foreach (@options) {
-					     $i++;
-					     $args =~ "s/\$ARG$i\$/$_/";
-					   }
-					   my $buffer;
-					   if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
-							  verbose => 0,
-							  buffer => \$buffer,
-							  timeout => 20)) {
-					     chomp $buffer;
-					     return $buffer;
-					   }
-					 }
-				       }
-				      );
+                                       port   => $port,
+                                       pid_dir => $pid,
+                                       ssl => $ssl,
+                                       commandlist => $commandlist,
+                                       callback => sub {
+                                         my ($self,$check,@options) = @_;
+                                         my $commandlist = $self->commandlist();
+                                         if ($commandlist->{$check}) {
+                                           my $args = $commandlist->{$check}->{args};
+                                           my $i = 0;
+                                           foreach (@options) {
+                                             $i++;
+                                             $args =~ "s/\$ARG$i\$/$_/";
+                                           }
+                                           my $buffer;
+                                           if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
+                                                          verbose => 0,
+                                                          buffer => \$buffer,
+                                                          timeout => 20)) {
+                                             chomp $buffer;
+                                             return $buffer;
+                                           }
+                                         }
+                                       }
+                                      );
 
 
 threads->new($daemon->start());
-
