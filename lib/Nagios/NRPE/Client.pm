@@ -152,7 +152,9 @@ sub run {
         SSL_version => 'TLSv1',
         SSL_cipher_list => 'ADH'
     );
-    $reason = "$!,$SSL_ERROR";
+    if ($SSL_ERROR) {
+        $reason = "$!,$SSL_ERROR";
+    }
 
   } else {
     $socket = IO::Socket::INET->new(
