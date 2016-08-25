@@ -183,6 +183,13 @@ sub run {
   }
   close($socket);
 
+  if (!$response) {
+    my %return;
+    $return{'error'} = 1;
+    $return{'reason'} = "No output from remote host";
+    return (\%return);
+  }
+
   return $packet->deassemble($response);
 }
 
