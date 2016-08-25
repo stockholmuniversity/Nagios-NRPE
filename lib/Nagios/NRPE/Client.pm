@@ -135,7 +135,9 @@ sub run {
     $check = join '!',$self->{check},@{$self->{arglist}};
   }
 
+  my $reason;
   my $socket;
+
   if($self->{ssl}) {
     eval {
         # required for new IO::Socket::SSL versions
@@ -149,14 +151,25 @@ sub run {
         SSL_verify_mode => SSL_VERIFY_NONE,
         SSL_version => 'TLSv1',
         SSL_cipher_list => 'ADH'
-    ) or die "failed connect or ssl handshake: $!,$SSL_ERROR";
+    );
+    if ($SSL_ERROR) {
+        $reason = "$!,$SSL_ERROR";
+    }
 
   } else {
     $socket = IO::Socket::INET->new(
                     PeerAddr => $self->{host},
                     PeerPort => $self->{port},
                     Proto    => 'tcp',
-                    Type     => SOCK_STREAM) or die "ERROR: $@ \n";
+                    Type     => SOCK_STREAM);
+    $reason = $@;
+  }
+
+  if (!$socket) {
+    my %return;
+    $return{'error'} = 1;
+    $return{'reason'} = $reason;
+    return (\%return);
   }
 
   my $packet = Nagios::NRPE::Packet->new();
@@ -169,6 +182,13 @@ sub run {
     $response .= $_;
   }
   close($socket);
+
+  if (!$response) {
+    my %return;
+    $return{'error'} = 1;
+    $return{'reason'} = "No output from remote host";
+    return (\%return);
+  }
 
   return $packet->deassemble($response);
 }
