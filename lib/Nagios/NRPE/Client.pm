@@ -150,6 +150,7 @@ sub run {
         PeerPort => $self->{port},
         SSL_verify_mode => SSL_VERIFY_NONE,
         SSL_version => 'TLSv1',
+        Timeout => $self->{timeout},
         SSL_cipher_list => 'ADH'
     );
     if ($SSL_ERROR) {
@@ -161,6 +162,7 @@ sub run {
                     PeerAddr => $self->{host},
                     PeerPort => $self->{port},
                     Proto    => 'tcp',
+                    Timeout  => $self->{timeout},
                     Type     => SOCK_STREAM);
     $reason = $@;
   }
