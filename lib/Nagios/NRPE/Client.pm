@@ -148,10 +148,10 @@ sub run {
         # where to connect
         PeerHost => $self->{host},
         PeerPort => $self->{port},
+        SSL_cipher_list => 'ADH',
         SSL_verify_mode => SSL_VERIFY_NONE,
         SSL_version => 'TLSv1',
-        Timeout => $self->{timeout},
-        SSL_cipher_list => 'ADH'
+        Timeout => $self->{timeout}
     );
     if ($SSL_ERROR) {
         $reason = "$!,$SSL_ERROR";
