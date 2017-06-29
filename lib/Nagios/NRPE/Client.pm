@@ -11,9 +11,9 @@ Nagios::NRPE::Client - A Nagios NRPE client
  my $client = Nagios::NRPE::Client->new( host => "localhost", check => 'check_cpu');
  my $response = $client->run();
  if(defined $response->{error}) {
-   print "ERROR: Couldn't run check ".$client->check()." because of: "$response->{reason}."\n";
+   print "ERROR: Couldn't run check " . $client->{check} . " because of: " . $response->{reason} . "\n";
  } else {
-   print $response->{status}."\n";
+   print $response->{buffer}."\n";
  }
 
 =head1 DESCRIPTION
