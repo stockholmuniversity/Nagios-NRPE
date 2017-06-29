@@ -24,7 +24,7 @@ The remote port on which the NRPE-server listens
 
 =head2 -s --ssl
 
-Use SSL or don't use SSL (not yet implemented)
+Use SSL or don't use SSL
 
 =head2 -c --check <somecheck>
 
@@ -63,27 +63,28 @@ my $result = GetOptions (
   "H|host=s"  => \$host,
   "p|port=s"  => \$port,
   "c|check=s" => \$check,
-  "s|ssl"     => \$ssl,
+  "s|ssl=i"     => \$ssl,
+  "t|timeout=i"     => \$timeout,
   "h|help"    => sub { pod2usage(-exitval   => 0,
                                  -verbose   => 99,
                                  -noperldoc => 1)
                      });
 
 
+
 $ssl  = 0           unless defined $ssl;
 $host = "localhost" unless defined $host;
 $port = 5666        unless defined $port;
+$timeout = 20       unless defined $timeout;
 
 die "Error: No check was given" unless defined $check;
-
 my $client = Nagios::NRPE::Client->new(
                 host => $host,
                 port => $port,
                 ssl => $ssl,
-                timeout => 20,
+                timeout => $timeout,
                 arglist => \@ARGV,
                 check => $check
              );
 my $response = $client->run();
-
 print $response->{buffer}."\n";
