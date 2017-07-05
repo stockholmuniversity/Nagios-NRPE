@@ -215,14 +215,14 @@ sub new {
   my $self = {};
 
 # taken with modifications from common.h in nagios-nrpe
-  my $c = Convert::Binary::C->new(ByteOrder => 'BigEndian', Alignment => 2);
+  my $c = Convert::Binary::C->new(ByteOrder => 'BigEndian', Alignment => 0);
   $c->parse(<<PACKET_STRUCT);
 struct Packet{
   unsigned short   packet_version;
   unsigned short   packet_type;
   unsigned int     crc32_value;
   unsigned short   result_code;
-  char             buffer[1026];
+  char             buffer[1024];
 };
 PACKET_STRUCT
   $c->tag('Packet.buffer', Format => 'String');
@@ -244,19 +244,18 @@ sub assemble{
   my $packed = $self->{c}->pack('Packet',$unpacked);
 
   $unpacked->{crc32_value} =  crc32($packed);
+  $packed = $self->{c}->pack('Packet',$unpacked);
+  return $packed;
 
-  return $self->{c}->pack('Packet',$unpacked);
 }
 
 sub validate {
   my ($self,$packet) = @_;
-  packet_dump($packet);
   my $unpacked = $self->{c}->unpack('Packet',$packet);
   my $checksum = $unpacked->{crc32_value};
-  packet_dump($checksum);
   $unpacked->{crc32_value} = "\x00\x00\x00\x00";
   my $packed = $self->{c}->pack('Packet',$unpacked);
-  if (not ~ crc32($packed) eq $checksum) {
+  if (crc32($packed) != $checksum) {
     return undef;
   }else {
     return 1;
