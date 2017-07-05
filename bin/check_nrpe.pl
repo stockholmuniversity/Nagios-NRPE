@@ -63,7 +63,7 @@ my $result = GetOptions (
   "H|host=s"  => \$host,
   "p|port=s"  => \$port,
   "c|check=s" => \$check,
-  "s|ssl=i"     => \$ssl,
+  "s|ssl"     => \$ssl,
   "t|timeout=i"     => \$timeout,
   "h|help"    => sub { pod2usage(-exitval   => 0,
                                  -verbose   => 99,
