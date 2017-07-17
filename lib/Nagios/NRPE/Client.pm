@@ -42,7 +42,8 @@ use Data::Dumper;
 use Carp;
 use IO::Socket;
 use IO::Socket::INET;
-use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
+use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
+                            NRPE_PACKET_VERSION_2
 			    NRPE_PACKET_QUERY
 			    MAX_PACKETBUFFER_LENGTH
 			    STATE_UNKNOWN
@@ -104,37 +105,8 @@ sub new {
   bless $self,$class;
 }
 
-=over 2
-
-=item run()
-
-Runs the communication to the server and returns a hash of the form:
-
-  my $response = $client->run();
-
-The output should be a hashref of this form:
-
-  {
-    version => NRPE_VERSION,
-    type => RESPONSE_TYPE,
-    crc32 => CRC32_CHECKSUM,
-    code => RESPONSE_CODE,
-    buffer => CHECK_OUTPUT
-  }
-
-=back
-
-=cut
-
-sub run {
-  my $self = shift;
-  my $check;
-  if (scalar @{$self->{arglist}} == 0) {
-    $check = $self->{check};
-  } else {
-    $check = join '!',$self->{check},@{$self->{arglist}};
-  }
-
+sub create_socket {
+  my ($self) = @_; 
   my $reason;
   my $socket;
 
@@ -174,24 +146,78 @@ sub run {
     return (\%return);
   }
 
+  return $socket;
+
+}
+
+
+=over 2
+
+=item run()
+
+Runs the communication to the server and returns a hash of the form:
+
+  my $response = $client->run();
+
+The output should be a hashref of this form:
+
+  {
+    version => NRPE_VERSION,
+    type => RESPONSE_TYPE,
+    crc32 => CRC32_CHECKSUM,
+    code => RESPONSE_CODE,
+    buffer => CHECK_OUTPUT
+  }
+
+=back
+
+=cut
+
+sub run {
+  my $self = shift;
+  my $check;
+  if (scalar @{$self->{arglist}} == 0) {
+    $check = $self->{check};
+  } else {
+    $check = join '!',$self->{check},@{$self->{arglist}};
+  }
+
+  my $socket = $self->create_socket();
   my $packet = Nagios::NRPE::Packet->new();
   my $response;
-  print $socket $packet->assemble(type => NRPE_PACKET_QUERY,
+  my $assembled = $packet->assemble(type => NRPE_PACKET_QUERY,
                                   check => $check,
                                   version => NRPE_PACKET_VERSION_2 );
 
+  print $socket $assembled;
   while (<$socket>) {
     $response .= $_;
   }
   close($socket);
 
   if (!$response) {
-    my %return;
-    $return{'error'} = 1;
-    $return{'reason'} = "No output from remote host";
-    return (\%return);
-  }
 
+    #$socket = $self->create_socket();
+    #$packet = undef;
+    #$packet = Nagios::NRPE::Packet->new();
+    #$response = undef;
+    #$assembled = $packet->assemble(type => NRPE_PACKET_QUERY,
+    #                              check => $check,
+    #                              version => NRPE_PACKET_VERSION_2 );
+
+    #print $socket $assembled;
+    #while (<$socket>) {
+    #  $response .= $_;
+    #}
+    #close($socket);
+
+    #if (!$response) {
+      my %return;
+      $return{'error'} = 1;
+      $return{'reason'} = "No output from remote host";
+      return (\%return);
+    #}
+  }
   return $packet->deassemble($response);
 }
 
