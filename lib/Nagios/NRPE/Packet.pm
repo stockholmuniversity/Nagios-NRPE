@@ -155,7 +155,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Packet;
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 use 5.010_000;
 require Exporter;
@@ -216,7 +216,71 @@ sub new {
 
 # taken with modifications from common.h in nagios-nrpe
   my $c = Convert::Binary::C->new(ByteOrder => 'BigEndian', Alignment => 0);
-  $c->parse(<<PACKET_STRUCT);
+  $self->{c} = $c;
+  bless $self,$class;
+}
+
+sub assemble {
+  my ($self,%options) = @_;
+  croak "ERROR: Cannot send Packet with empty buffer!" if (not defined $options{check});
+  my $packed;
+  if( $options{version} eq NRPE_PACKET_VERSION_2 ) {
+    print "Making v2 packet\n";
+    $packed = $self->assemble_v2(%options);
+  } else {
+    print "Making v3 packet\n";
+    $packed = $self->assemble_v3(%options);
+  }
+  return $packed;
+
+}
+
+sub assemble_v3{
+  my ($self,%options) = @_;
+  my $unpacked = {};
+  my $len = length($options{check}) + 1;
+
+  $unpacked->{alignment}      = 0;
+  $unpacked->{buffer_length}  = $len;
+  $unpacked->{buffer}         = $options{check};
+  $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
+  $unpacked->{packet_type}    = $options{type}    || NRPE_PACKET_QUERY;
+  $unpacked->{packet_version} = NRPE_PACKET_VERSION_3;
+  $unpacked->{result_code}    = $options{result_code}    || 2324;
+
+  $self->{c}->parse(<<PACKET_STRUCT);
+struct Packet{
+  unsigned short   packet_version;
+  unsigned short   packet_type;
+  unsigned int     crc32_value;
+  unsigned short   result_code;
+  unsigned short   alignment;
+  int              buffer_length;
+  char             buffer[$len];
+};
+PACKET_STRUCT
+  $self->{c}->tag('Packet.buffer', Format => 'String');
+
+  my $packed = $self->{c}->pack('Packet',$unpacked);
+
+  $unpacked->{crc32_value} =  crc32($packed);
+  $packed = $self->{c}->pack('Packet',$unpacked);
+  return $packed;
+
+}
+
+sub assemble_v2{
+
+  my ($self,%options) = @_;
+  my $unpacked = {};
+
+  $unpacked->{buffer}         = $options{check};
+  $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
+  $unpacked->{packet_type}    = $options{type}    || NRPE_PACKET_QUERY;
+  $unpacked->{packet_version} = NRPE_PACKET_VERSION_2;
+  $unpacked->{result_code}    = $options{result_code}    || 2324;
+
+  $self->{c}->parse(<<PACKET_STRUCT);
 struct Packet{
   unsigned short   packet_version;
   unsigned short   packet_type;
@@ -225,21 +289,7 @@ struct Packet{
   char             buffer[1024];
 };
 PACKET_STRUCT
-  $c->tag('Packet.buffer', Format => 'String');
-  $self->{c} = $c;
-  bless $self,$class;
-}
-
-sub assemble{
-  my ($self,%options) = @_;
-  my $unpacked = {};
-  croak "ERROR: Cannot send Packet with empty buffer!" if (not defined $options{check});
-
-  $unpacked->{buffer}         = $options{check};
-  $unpacked->{packet_version} = $options{version} || NRPE_PACKET_VERSION_2;
-  $unpacked->{packet_type}    = $options{type}    || NRPE_PACKET_QUERY;
-  $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
-  $unpacked->{result_code}    = $options{result_code}    || 2324;
+  $self->{c}->tag('Packet.buffer', Format => 'String');
 
   my $packed = $self->{c}->pack('Packet',$unpacked);
 
@@ -262,9 +312,39 @@ sub validate {
   }
 }
 
-sub deassemble{
+sub deassemble {
   my ($self,$packet) = @_;
-  my $unpacked = $self->{c}->unpack('Packet',$packet);
+  my $ver = unpack("n", $packet);
+  my $unpacked = {};
+  if($ver eq NRPE_PACKET_VERSION_2 ) {
+    $unpacked = $self->deassemble_v2($packet);
+  } else {
+    $unpacked = $self->deassemble_v3($packet);
+  }
+  return $unpacked;
+}
+sub deassemble_v3 {
+  my ($self,$packet) = @_;
+  my @arr = unpack("n2 N n2 N Z*", $packet);
+  my $unpacked = {};
+  $unpacked->{packet_version} = $arr[0];
+  $unpacked->{packet_type}    = $arr[1];
+  $unpacked->{crc32_value}    = $arr[2];
+  $unpacked->{result_code}    = $arr[3];
+  $unpacked->{alignment}      = $arr[4];
+  $unpacked->{buffer_length}  = $arr[5];
+  $unpacked->{buffer}         = $arr[6];
+  return $unpacked;
+}
+sub deassemble_v2 {
+  my ($self,$packet) = @_;
+  my @arr = unpack("n2 N n Z*", $packet);
+  my $unpacked = {};
+  $unpacked->{packet_version} = $arr[0];
+  $unpacked->{packet_type}    = $arr[1];
+  $unpacked->{crc32_value}    = $arr[2];
+  $unpacked->{result_code}    = $arr[3];
+  $unpacked->{buffer}         = $arr[4];
   return $unpacked;
 }
 
