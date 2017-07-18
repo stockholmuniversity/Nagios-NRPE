@@ -71,7 +71,8 @@ use Data::Dumper;
 use Carp;
 use IO::Socket;
 use IO::Socket::INET;
-use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
+use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
+  NRPE_PACKET_VERSION_2
   NRPE_PACKET_RESPONSE
   MAX_PACKETBUFFER_LENGTH
   STATE_UNKNOWN
@@ -172,11 +173,12 @@ sub start {
             $s->recv( $request, 1036 );
             my $unpacked_request = $packet->deassemble($request);
             my $buffer           = $unpacked_request->{buffer};
+            my $version          = $unpacked_request->{packet_version};
             my ( $command, @options ) = split /!/, $buffer;
 
             my $return = $self->{callback}( $self, $command, @options );
             print $s $packet->assemble(
-                version => NRPE_PACKET_VERSION_2,
+                version => $version,
                 type    => NRPE_PACKET_RESPONSE,
                 check   => $return
             );
