@@ -161,7 +161,19 @@ Runs the communication to the server and returns a hash of the form:
 
   my $response = $client->run();
 
-The output should be a hashref of this form:
+The output should be a hashref of this form for NRPE V3:
+
+  {
+    version => NRPE_VERSION,
+    type => RESPONSE_TYPE,
+    crc32 => CRC32_CHECKSUM,
+    code => RESPONSE_CODE,
+    alignment => PACKET_ALIGNMENT,
+    buffer_length => OUTPUT_LENGTH,
+    buffer => CHECK_OUTPUT
+  }
+  
+and this for for NRPE V2:
 
   {
     version => NRPE_VERSION,
