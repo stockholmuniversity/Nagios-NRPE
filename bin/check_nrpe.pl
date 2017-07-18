@@ -88,3 +88,4 @@ my $client = Nagios::NRPE::Client->new(
              );
 my $response = $client->run();
 print $response->{buffer}."\n";
+exit $response->{result_code};

@@ -33,6 +33,7 @@ Nagios::NRPE::Packet - Assembly and de-assembly of an NRPE packet
  my $response = $packet->deassemble($data);
 
  print $response->{buffer};
+ exit $response->{result_code};
 
 =head1 DESCRIPTION
 
@@ -67,7 +68,7 @@ NOTE: Nagios can accept arguments appended to the check in the form: "check_some
 
  version
 
-The NRPE version you want to use (currently only V2 is accepted).
+The NRPE version you want to use (only V2 and V3 work V1 is not supported, deafult is V3).
 
 See CONSTANTS for options here.
 
@@ -79,20 +80,47 @@ See CONSTANTS for options here.
 
  result_code
 
-This is a curios value as it seems to have no apparent affect on neither the server nor the client.
+This is the exit code of the check script that is run, and check_nrpe.pl will exit with this value from the 
+RESPONSE packet.
 
-A set value is 2324.
+A set value for the QUERY type packet is 2324.
+
+=item * assemble_v2
+
+A helper function to assemble a V2 packet.
+
+=item * assemble_v3
+
+A helper function to assemble a V3 packet.
 
 =item * deassemble
 
 Takes a packet recieved by either client or server and deassembles them. The returned hashref contains 
-the following values:
+the following values for a V3 packet:
 
-=item * packet_type
-
- crc32_value
- result_code
+ packet_version 
+ packet_type    
+ crc32_value    
+ result_code    
+ alignment      
+ buffer_length  
  buffer
+
+and the following values for a V2 packet:
+
+ packet_version 
+ packet_type    
+ crc32_value    
+ result_code    
+ buffer
+
+=item * deassemble_v2
+
+Helper function for deassembleing a V2 packet
+
+=item * deassemble_v3
+
+Helper function for deassembleing a V3 packet
 
 =item * validate($packet)
 
@@ -155,7 +183,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Packet;
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 use 5.010_000;
 require Exporter;
