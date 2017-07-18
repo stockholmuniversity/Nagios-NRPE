@@ -174,7 +174,7 @@ The output should be a hashref of this form:
 =cut
 
 sub run {
-  my $self = shift;
+  my ($self) = @_;
   my $check;
   if (scalar @{$self->{arglist}} == 0) {
     $check = $self->{check};
@@ -183,11 +183,15 @@ sub run {
   }
 
   my $socket = $self->create_socket();
+  if (ref  $socket eq "REF"  ) {
+    print "Socket error: $socket->{reason}\n";
+    return undef;
+  }
   my $packet = Nagios::NRPE::Packet->new();
   my $response;
   my $assembled = $packet->assemble(type => NRPE_PACKET_QUERY,
                                   check => $check,
-                                  version => NRPE_PACKET_VERSION_2 );
+                                  version => NRPE_PACKET_VERSION_3 );
 
   print $socket $assembled;
   while (<$socket>) {
@@ -195,28 +199,26 @@ sub run {
   }
   close($socket);
 
-  if (!$response) {
+  if (!$response  ) {
+    $socket = $self->create_socket();
+    $packet = Nagios::NRPE::Packet->new();
+    $response = undef;
+    $assembled = $packet->assemble(type => NRPE_PACKET_QUERY,
+                                  check => $check,
+                                  version => NRPE_PACKET_VERSION_2 );
 
-    #$socket = $self->create_socket();
-    #$packet = undef;
-    #$packet = Nagios::NRPE::Packet->new();
-    #$response = undef;
-    #$assembled = $packet->assemble(type => NRPE_PACKET_QUERY,
-    #                              check => $check,
-    #                              version => NRPE_PACKET_VERSION_2 );
+    print $socket $assembled;
+    while (<$socket>) {
+      $response .= $_;
+    }
+    close($socket);
 
-    #print $socket $assembled;
-    #while (<$socket>) {
-    #  $response .= $_;
-    #}
-    #close($socket);
-
-    #if (!$response) {
+    if (!$response) {
       my %return;
       $return{'error'} = 1;
       $return{'reason'} = "No output from remote host";
       return (\%return);
-    #}
+    }
   }
   return $packet->deassemble($response);
 }

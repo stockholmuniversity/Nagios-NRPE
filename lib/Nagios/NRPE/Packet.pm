@@ -225,10 +225,8 @@ sub assemble {
   croak "ERROR: Cannot send Packet with empty buffer!" if (not defined $options{check});
   my $packed;
   if( $options{version} eq NRPE_PACKET_VERSION_2 ) {
-    print "Making v2 packet\n";
     $packed = $self->assemble_v2(%options);
   } else {
-    print "Making v3 packet\n";
     $packed = $self->assemble_v3(%options);
   }
   return $packed;
