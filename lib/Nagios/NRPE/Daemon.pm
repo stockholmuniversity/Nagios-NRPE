@@ -51,7 +51,7 @@ and hooks in case you want to build your own NRPE Server.
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Andreas Marschke <andreas.marschke@googlemail.com>.
+This software is copyright (c) 2017 by the authors (see AUTHORS file).
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
