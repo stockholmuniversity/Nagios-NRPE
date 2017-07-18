@@ -43,7 +43,6 @@ the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-
 use 5.010_000;
 
 use strict;
@@ -56,36 +55,38 @@ use Nagios::NRPE::Client;
 
 our $VERSION = '';
 
-my ($host,$port,$check,$ssl,$timeout);
+my ( $host, $port, $check, $ssl, $timeout );
 
 Getopt::Long::Configure('no_ignore_case');
-my $result = GetOptions (
-  "H|host=s"  => \$host,
-  "p|port=s"  => \$port,
-  "c|check=s" => \$check,
-  "s|ssl"     => \$ssl,
-  "t|timeout=i"     => \$timeout,
-  "h|help"    => sub { pod2usage(-exitval   => 0,
-                                 -verbose   => 99,
-                                 -noperldoc => 1)
-                     });
+my $result = GetOptions(
+    "H|host=s"    => \$host,
+    "p|port=s"    => \$port,
+    "c|check=s"   => \$check,
+    "s|ssl"       => \$ssl,
+    "t|timeout=i" => \$timeout,
+    "h|help"      => sub {
+        pod2usage(
+            -exitval   => 0,
+            -verbose   => 99,
+            -noperldoc => 1
+        );
+    }
+);
 
-
-
-$ssl  = 0           unless defined $ssl;
-$host = "localhost" unless defined $host;
-$port = 5666        unless defined $port;
-$timeout = 20       unless defined $timeout;
+$ssl     = 0           unless defined $ssl;
+$host    = "localhost" unless defined $host;
+$port    = 5666        unless defined $port;
+$timeout = 20          unless defined $timeout;
 
 die "Error: No check was given" unless defined $check;
 my $client = Nagios::NRPE::Client->new(
-                host => $host,
-                port => $port,
-                ssl => $ssl,
-                timeout => $timeout,
-                arglist => \@ARGV,
-                check => $check
-             );
+    host    => $host,
+    port    => $port,
+    ssl     => $ssl,
+    timeout => $timeout,
+    arglist => \@ARGV,
+    check   => $check
+);
 my $response = $client->run();
-print $response->{buffer}."\n";
+print $response->{buffer} . "\n";
 exit $response->{result_code};
