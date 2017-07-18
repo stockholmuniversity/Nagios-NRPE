@@ -18,7 +18,8 @@ Nagios::NRPE::Client - A Nagios NRPE client
 
 =head1 DESCRIPTION
 
-This Perl Module implements Version 2 of the NRPE-Protocol. With this module you can execute
+This Perl Module implements Version 2 and 3 of the NRPE-Protocol. With this module you can execute 
+checks on a remote server.
 
 =head1 COPYRIGHT AND LICENSE
 
