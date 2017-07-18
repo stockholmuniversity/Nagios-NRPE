@@ -162,21 +162,21 @@ require Exporter;
 require overload;
 
 BEGIN {
-  @ISA = qw(Exporter);
-  @EXPORT_OK = qw(NRPE_PACKET_VERSION_3
-                  NRPE_PACKET_VERSION_2
-                  NRPE_PACKET_VERSION_1
-                  NRPE_PACKET_QUERY
-                  NRPE_PACKET_RESPONSE
-                  MAX_PACKETBUFFER_LENGTH
-                  MAX_COMMAND_ARGUMENTS
-                  NRPE_HELLO_COMMAND
-                  DEFAULT_SOCKET_TIMEOUT
-                  DEFAULT_CONNECTION_TIMEOUT
-                  STATE_UNKNOWN
-                  STATE_CRITICAL
-                  STATE_WARNING
-                  STATE_OK);
+    @ISA       = qw(Exporter);
+    @EXPORT_OK = qw(NRPE_PACKET_VERSION_3
+      NRPE_PACKET_VERSION_2
+      NRPE_PACKET_VERSION_1
+      NRPE_PACKET_QUERY
+      NRPE_PACKET_RESPONSE
+      MAX_PACKETBUFFER_LENGTH
+      MAX_COMMAND_ARGUMENTS
+      NRPE_HELLO_COMMAND
+      DEFAULT_SOCKET_TIMEOUT
+      DEFAULT_CONNECTION_TIMEOUT
+      STATE_UNKNOWN
+      STATE_CRITICAL
+      STATE_WARNING
+      STATE_OK);
 }
 
 use warnings;
@@ -187,66 +187,69 @@ use Convert::Binary::C;
 use Digest::CRC 'crc32';
 
 use constant {
-  # packet version identifier
-  NRPE_PACKET_VERSION_3   =>  3,
-  NRPE_PACKET_VERSION_2   =>  2,
-  NRPE_PACKET_VERSION_1   =>  1,
 
-  # id code for queries and responses to queries
-  NRPE_PACKET_QUERY            =>  1,
-  NRPE_PACKET_RESPONSE         =>  2,
+    # packet version identifier
+    NRPE_PACKET_VERSION_3 => 3,
+    NRPE_PACKET_VERSION_2 => 2,
+    NRPE_PACKET_VERSION_1 => 1,
 
-  # max amount of data we'll send in one query/response
-  MAX_PACKETBUFFER_LENGTH => 1024,
-  MAX_COMMAND_ARGUMENTS   => 16,
-  NRPE_HELLO_COMMAND      => "_NRPE_CHECK",
-  DEFAULT_SOCKET_TIMEOUT  => 10,
-  DEFAULT_CONNECTION_TIMEOUT => 300,
+    # id code for queries and responses to queries
+    NRPE_PACKET_QUERY    => 1,
+    NRPE_PACKET_RESPONSE => 2,
 
-  # /* service state return codes */
-  STATE_UNKNOWN           => 3,
-  STATE_CRITICAL          => 2,
-  STATE_WARNING 	  => 1,
-  STATE_OK                => 0,
+    # max amount of data we'll send in one query/response
+    MAX_PACKETBUFFER_LENGTH    => 1024,
+    MAX_COMMAND_ARGUMENTS      => 16,
+    NRPE_HELLO_COMMAND         => "_NRPE_CHECK",
+    DEFAULT_SOCKET_TIMEOUT     => 10,
+    DEFAULT_CONNECTION_TIMEOUT => 300,
+
+    # /* service state return codes */
+    STATE_UNKNOWN  => 3,
+    STATE_CRITICAL => 2,
+    STATE_WARNING  => 1,
+    STATE_OK       => 0,
 };
 
 sub new {
-  my ($class, %options) = @_;
-  my $self = {};
+    my ( $class, %options ) = @_;
+    my $self = {};
 
-# taken with modifications from common.h in nagios-nrpe
-  my $c = Convert::Binary::C->new(ByteOrder => 'BigEndian', Alignment => 0);
-  $self->{c} = $c;
-  bless $self,$class;
+    # taken with modifications from common.h in nagios-nrpe
+    my $c = Convert::Binary::C->new( ByteOrder => 'BigEndian', Alignment => 0 );
+    $self->{c} = $c;
+    bless $self, $class;
 }
 
 sub assemble {
-  my ($self,%options) = @_;
-  croak "ERROR: Cannot send Packet with empty buffer!" if (not defined $options{check});
-  my $packed;
-  if( $options{version} eq NRPE_PACKET_VERSION_2 ) {
-    $packed = $self->assemble_v2(%options);
-  } else {
-    $packed = $self->assemble_v3(%options);
-  }
-  return $packed;
+    my ( $self, %options ) = @_;
+    croak "ERROR: Cannot send Packet with empty buffer!"
+      if ( not defined $options{check} );
+    my $packed;
+    if ( $options{version} eq NRPE_PACKET_VERSION_2 ) {
+        $packed = $self->assemble_v2(%options);
+    }
+    else {
+        $packed = $self->assemble_v3(%options);
+    }
+    return $packed;
 
 }
 
-sub assemble_v3{
-  my ($self,%options) = @_;
-  my $unpacked = {};
-  my $len = length($options{check}) + 1;
+sub assemble_v3 {
+    my ( $self, %options ) = @_;
+    my $unpacked = {};
+    my $len      = length( $options{check} ) + 1;
 
-  $unpacked->{alignment}      = 0;
-  $unpacked->{buffer_length}  = $len;
-  $unpacked->{buffer}         = $options{check};
-  $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
-  $unpacked->{packet_type}    = $options{type}    || NRPE_PACKET_QUERY;
-  $unpacked->{packet_version} = NRPE_PACKET_VERSION_3;
-  $unpacked->{result_code}    = $options{result_code}    || 2324;
+    $unpacked->{alignment}      = 0;
+    $unpacked->{buffer_length}  = $len;
+    $unpacked->{buffer}         = $options{check};
+    $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
+    $unpacked->{packet_type}    = $options{type} || NRPE_PACKET_QUERY;
+    $unpacked->{packet_version} = NRPE_PACKET_VERSION_3;
+    $unpacked->{result_code}    = $options{result_code} || 2324;
 
-  $self->{c}->parse(<<PACKET_STRUCT);
+    $self->{c}->parse(<<PACKET_STRUCT);
 struct Packet{
   unsigned short   packet_version;
   unsigned short   packet_type;
@@ -257,28 +260,28 @@ struct Packet{
   char             buffer[$len];
 };
 PACKET_STRUCT
-  $self->{c}->tag('Packet.buffer', Format => 'String');
+    $self->{c}->tag( 'Packet.buffer', Format => 'String' );
 
-  my $packed = $self->{c}->pack('Packet',$unpacked);
+    my $packed = $self->{c}->pack( 'Packet', $unpacked );
 
-  $unpacked->{crc32_value} =  crc32($packed);
-  $packed = $self->{c}->pack('Packet',$unpacked);
-  return $packed;
+    $unpacked->{crc32_value} = crc32($packed);
+    $packed = $self->{c}->pack( 'Packet', $unpacked );
+    return $packed;
 
 }
 
-sub assemble_v2{
+sub assemble_v2 {
 
-  my ($self,%options) = @_;
-  my $unpacked = {};
+    my ( $self, %options ) = @_;
+    my $unpacked = {};
 
-  $unpacked->{buffer}         = $options{check};
-  $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
-  $unpacked->{packet_type}    = $options{type}    || NRPE_PACKET_QUERY;
-  $unpacked->{packet_version} = NRPE_PACKET_VERSION_2;
-  $unpacked->{result_code}    = $options{result_code}    || 2324;
+    $unpacked->{buffer}         = $options{check};
+    $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
+    $unpacked->{packet_type}    = $options{type} || NRPE_PACKET_QUERY;
+    $unpacked->{packet_version} = NRPE_PACKET_VERSION_2;
+    $unpacked->{result_code}    = $options{result_code} || 2324;
 
-  $self->{c}->parse(<<PACKET_STRUCT);
+    $self->{c}->parse(<<PACKET_STRUCT);
 struct Packet{
   unsigned short   packet_version;
   unsigned short   packet_type;
@@ -287,65 +290,68 @@ struct Packet{
   char             buffer[1024];
 };
 PACKET_STRUCT
-  $self->{c}->tag('Packet.buffer', Format => 'String');
+    $self->{c}->tag( 'Packet.buffer', Format => 'String' );
 
-  my $packed = $self->{c}->pack('Packet',$unpacked);
+    my $packed = $self->{c}->pack( 'Packet', $unpacked );
 
-  $unpacked->{crc32_value} =  crc32($packed);
-  $packed = $self->{c}->pack('Packet',$unpacked);
-  return $packed;
+    $unpacked->{crc32_value} = crc32($packed);
+    $packed = $self->{c}->pack( 'Packet', $unpacked );
+    return $packed;
 
 }
 
 sub validate {
-  my ($self,$packet) = @_;
-  my $unpacked = $self->{c}->unpack('Packet',$packet);
-  my $checksum = $unpacked->{crc32_value};
-  $unpacked->{crc32_value} = "\x00\x00\x00\x00";
-  my $packed = $self->{c}->pack('Packet',$unpacked);
-  if (crc32($packed) != $checksum) {
-    return undef;
-  }else {
-    return 1;
-  }
+    my ( $self, $packet ) = @_;
+    my $unpacked = $self->{c}->unpack( 'Packet', $packet );
+    my $checksum = $unpacked->{crc32_value};
+    $unpacked->{crc32_value} = "\x00\x00\x00\x00";
+    my $packed = $self->{c}->pack( 'Packet', $unpacked );
+    if ( crc32($packed) != $checksum ) {
+        return undef;
+    }
+    else {
+        return 1;
+    }
 }
 
 sub deassemble {
-  my ($self,$packet) = @_;
-  my $ver = unpack("n", $packet);
-  my $unpacked = {};
-  if($ver eq NRPE_PACKET_VERSION_2 ) {
-    $unpacked = $self->deassemble_v2($packet);
-  } else {
-    $unpacked = $self->deassemble_v3($packet);
-  }
-  return $unpacked;
-}
-sub deassemble_v3 {
-  my ($self,$packet) = @_;
-  my @arr = unpack("n2 N n2 N Z*", $packet);
-  my $unpacked = {};
-  $unpacked->{packet_version} = $arr[0];
-  $unpacked->{packet_type}    = $arr[1];
-  $unpacked->{crc32_value}    = $arr[2];
-  $unpacked->{result_code}    = $arr[3];
-  $unpacked->{alignment}      = $arr[4];
-  $unpacked->{buffer_length}  = $arr[5];
-  $unpacked->{buffer}         = $arr[6];
-  return $unpacked;
-}
-sub deassemble_v2 {
-  my ($self,$packet) = @_;
-  my @arr = unpack("n2 N n Z*", $packet);
-  my $unpacked = {};
-  $unpacked->{packet_version} = $arr[0];
-  $unpacked->{packet_type}    = $arr[1];
-  $unpacked->{crc32_value}    = $arr[2];
-  $unpacked->{result_code}    = $arr[3];
-  $unpacked->{buffer}         = $arr[4];
-  return $unpacked;
+    my ( $self, $packet ) = @_;
+    my $ver = unpack( "n", $packet );
+    my $unpacked = {};
+    if ( $ver eq NRPE_PACKET_VERSION_2 ) {
+        $unpacked = $self->deassemble_v2($packet);
+    }
+    else {
+        $unpacked = $self->deassemble_v3($packet);
+    }
+    return $unpacked;
 }
 
+sub deassemble_v3 {
+    my ( $self, $packet ) = @_;
+    my @arr = unpack( "n2 N n2 N Z*", $packet );
+    my $unpacked = {};
+    $unpacked->{packet_version} = $arr[0];
+    $unpacked->{packet_type}    = $arr[1];
+    $unpacked->{crc32_value}    = $arr[2];
+    $unpacked->{result_code}    = $arr[3];
+    $unpacked->{alignment}      = $arr[4];
+    $unpacked->{buffer_length}  = $arr[5];
+    $unpacked->{buffer}         = $arr[6];
+    return $unpacked;
+}
+
+sub deassemble_v2 {
+    my ( $self, $packet ) = @_;
+    my @arr = unpack( "n2 N n Z*", $packet );
+    my $unpacked = {};
+    $unpacked->{packet_version} = $arr[0];
+    $unpacked->{packet_type}    = $arr[1];
+    $unpacked->{crc32_value}    = $arr[2];
+    $unpacked->{result_code}    = $arr[3];
+    $unpacked->{buffer}         = $arr[4];
+    return $unpacked;
+}
 
 =pod
 
@@ -359,36 +365,36 @@ Debugging function for hexdumping a binary string.
 
 =cut
 
-sub packet_dump
-  {
+sub packet_dump {
     my $packet = shift;
     my $i;
     my $k;
-    my $dump;  
+    my $dump;
     my $l;
     my $ascii;
     my $c;
-    for ( $i = 0; $i < length ( $packet ); $i+=16 ) {
-      $l = $i+16;
-      if ( $l > length ( $packet) ) {
-        $l = length($packet);
-      }
-      $dump   = sprintf ( "%04d - %04d: ", $i, $l );
-      $ascii  = "";
-      for ( $k = $i; $k < $l; $k++ ) {
-        $c     = ( ord ( substr ( $packet, $k, 1 ) ) );
-        $dump .= sprintf ( "%02x ", $c );
-        if (( $c >= 32 ) && ( $c <= 126 )) {
-          $ascii .= chr ( $c );
-        } else {
-          $ascii .= ".";
-        } 
-      }
-      for ( $k = 0; $k < ( $i + 16 - $l ); $k++ ) {
-        $dump .= "   ";
-      }
-      print ( "packet_dump() ".$dump." [".$ascii."]"."\n"); 
+    for ( $i = 0 ; $i < length($packet) ; $i += 16 ) {
+        $l = $i + 16;
+        if ( $l > length($packet) ) {
+            $l = length($packet);
+        }
+        $dump = sprintf( "%04d - %04d: ", $i, $l );
+        $ascii = "";
+        for ( $k = $i ; $k < $l ; $k++ ) {
+            $c = ( ord( substr( $packet, $k, 1 ) ) );
+            $dump .= sprintf( "%02x ", $c );
+            if ( ( $c >= 32 ) && ( $c <= 126 ) ) {
+                $ascii .= chr($c);
+            }
+            else {
+                $ascii .= ".";
+            }
+        }
+        for ( $k = 0 ; $k < ( $i + 16 - $l ) ; $k++ ) {
+            $dump .= "   ";
+        }
+        print( "packet_dump() " . $dump . " [" . $ascii . "]" . "\n" );
     }
-  }
+}
 
 1;
