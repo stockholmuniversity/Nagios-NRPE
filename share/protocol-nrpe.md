@@ -117,8 +117,6 @@ _IF IT WAS COMPILED WITH SSL_
 
 _ENDIF_
  
- - randomize packet buffer data 
-   `(char *)&send_packet,sizeof(send_packet)`
  - build Packet
 
  - send packet
