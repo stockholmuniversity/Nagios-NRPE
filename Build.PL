@@ -11,8 +11,8 @@ my $build = Module::Build->new(
   dist_author => 'Andreas Marschke <andreas.marschke@googlemail.com>',
   meta_merge => {
     resources => {
-      homepage => 'http://github.com/andreas-marschke/nagios-nrpe',
-      repository => 'git://github.com/andreas-marschke/nagios-nrpe.git'
+      homepage => 'http://github.com/stockholmuniversity/nagios-nrpe',
+      repository => 'git://github.com/stockholmuniversity/nagios-nrpe.git'
      },
     no_index => {
       directory => [qw/t xt/],
