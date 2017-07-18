@@ -29,6 +29,7 @@ my $build = Module::Build->new(
     "perl" => "5.010_000",
     "Convert::Binary::C" => 0,
     "constant" => 0,
+    "Digest::CRC" => 0,
     "IO::Socket" => 0,
     "IO::Socket::INET" => 0
   },
