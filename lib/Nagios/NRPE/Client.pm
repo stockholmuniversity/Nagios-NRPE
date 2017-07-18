@@ -184,8 +184,7 @@ sub run {
 
   my $socket = $self->create_socket();
   if (ref  $socket eq "REF"  ) {
-    print "Socket error: $socket->{reason}\n";
-    return undef;
+    return ($socket);
   }
   my $packet = Nagios::NRPE::Packet->new();
   my $response;
@@ -201,6 +200,9 @@ sub run {
 
   if (!$response  ) {
     $socket = $self->create_socket();
+    if (ref  $socket eq "REF"  ) {
+      return ($socket);
+    }
     $packet = Nagios::NRPE::Packet->new();
     $response = undef;
     $assembled = $packet->assemble(type => NRPE_PACKET_QUERY,
