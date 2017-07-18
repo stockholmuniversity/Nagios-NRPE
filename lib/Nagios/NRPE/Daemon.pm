@@ -60,7 +60,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Daemon;
 
-our $VERSION = '0.003';
+our $VERSION = '0.005';
 
 use 5.010_000;
 

@@ -22,7 +22,8 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
  use IO::Socket;
  use IO::Socket::INET;
  # Import necessary constants into Namespace
- use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_2
+ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
+                             NRPE_PACKET_VERSION_2
                              NRPE_PACKET_QUERY
                              MAX_PACKETBUFFER_LENGTH
                              STATE_UNKNOWN
@@ -40,7 +41,7 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
 
  print $socket $packet->assemble(type => QUERY_PACKET,
                               buffer => "check_load 1 2 3",
-                              version => NRPE_PACKET_VERSION_2 );
+                              version => NRPE_PACKET_VERSION_3 );
 
  my $data = <$socket>
  my $response = $packet->deassemble($data);
@@ -66,6 +67,6 @@ package Nagios::NRPE;
 use strict;
 use warnings;
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 1;

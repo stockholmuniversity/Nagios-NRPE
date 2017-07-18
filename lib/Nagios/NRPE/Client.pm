@@ -31,7 +31,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Client;
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 use 5.010_000;
 
