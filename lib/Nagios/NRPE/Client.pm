@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+=pod
+
 =head1 NAME
 
 Nagios::NRPE::Client - A Nagios NRPE client
@@ -52,6 +54,8 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   STATE_WARNING
   STATE_OK);
 
+=pod
+
 =head1 SUBROUTINES
 
 =over 2
@@ -66,27 +70,27 @@ Constructor for the Nagios::NRPE::Client Object
 
 Takes a hash of options:
 
-=item host => <hostname or IP>
+ *  host => <hostname or IP>
 
 The hostname or IP on which the NRPE-Server is running
 
-=item port => <Portnumber>
+ * port => <Portnumber>
 
 The port number at which the NRPE-Server is listening
 
-=item timeout => <number in seconds>
+ * timeout => <number in seconds>
 
 Timeout for TCP/IP communication
 
-=item arglist => ["arg","uments"]
+ * arglist => ["arg","uments"]
 
 List of arguments attached to the check
 
-=item check => "check_command"
+ * check => "check_command"
 
 Command defined in the nrpe.cfg on the NRPE-Server
 
-=item ssl => 0,1
+ * ssl => 0,1
 
 Use or don't use SSL
 
@@ -106,6 +110,17 @@ sub new {
     bless $self, $class;
 }
 
+=pod
+
+=over 2
+
+=item create_socket()
+
+Helper function that can create either an INET socket or a SSL socket
+
+=back
+
+=cut 
 sub create_socket {
     my ($self) = @_;
     my $reason;
@@ -153,6 +168,8 @@ sub create_socket {
     return $socket;
 
 }
+
+=pod
 
 =over 2
 
@@ -244,5 +261,16 @@ sub run {
     }
     return $packet->deassemble($response);
 }
+
+=pod
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2017 by the authors (see AUTHORS file).
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
 
 1;

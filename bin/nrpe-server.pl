@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+=pod
+
 =head1 NAME
 
 nrpe-server - A Nagios NRPE Server

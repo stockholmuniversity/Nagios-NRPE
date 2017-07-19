@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+=pod
+
 =head1 NAME
 
 Nagios::NRPE::Packet - Assembly and de-assembly of an NRPE packet
@@ -50,50 +52,50 @@ Takes the following options as a hashref
 
 =back
 
-=head1 FUNCTIONS
+=head1 SUBROUTINES
 
 Following functions can be used after the creation of the packet
 
 =over 2
 
-=item * assemble
+=item assemble()
 
 Takes a hash of options defining the packet to be sent and returns the assembled packet. You can print this
 to an open socket and send it to either a server or the client depending on your situation.
 
- check
+ * check
 
 A string defining the check to be run or the output of a check eg: "check_cpu"
 NOTE: Nagios can accept arguments appended to the check in the form: "check_somecheck!ARG1!ARG2!ARG..."
 
- version
+ * version
 
 The NRPE version you want to use (only V2 and V3 work V1 is not supported, deafult is V3).
 
 See CONSTANTS for options here.
 
- type
+ * type
 
 The TYPE of packet you wish to send, which is either QUERY or RESPONSE.
 
 See CONSTANTS for options here.
 
- result_code
+ * result_code
 
 This is the exit code of the check script that is run, and check_nrpe.pl will exit with this value from the 
 RESPONSE packet.
 
 A set value for the QUERY type packet is 2324.
 
-=item * assemble_v2
+=item assemble_v2()
 
 A helper function to assemble a V2 packet.
 
-=item * assemble_v3
+=item assemble_v3()
 
 A helper function to assemble a V3 packet.
 
-=item * deassemble
+=item deassemble()
 
 Takes a packet recieved by either client or server and deassembles them. The returned hashref contains 
 the following values for a V3 packet:
@@ -114,18 +116,23 @@ and the following values for a V2 packet:
  result_code    
  buffer
 
-=item * deassemble_v2
+=item deassemble_v2()
 
 Helper function for deassembleing a V2 packet
 
-=item * deassemble_v3
+=item deassemble_v3()
 
 Helper function for deassembleing a V3 packet
 
-=item * validate($packet)
+=item validate($packet)
 
 Validates the contents of a packet using CRC32 checksumming. Returns undef
 if not succesful.
+
+
+=item packet_dump
+
+Debugging function for hexdumping a binary string.
 
 =back
 
@@ -380,18 +387,6 @@ sub deassemble_v2 {
     $unpacked->{buffer}         = $arr[4];
     return $unpacked;
 }
-
-=pod
-
-=over
-
-=item packet_dump
-
-Debugging function for hexdumping a binary string.
-
-=back
-
-=cut
 
 sub packet_dump {
     my $packet = shift;
