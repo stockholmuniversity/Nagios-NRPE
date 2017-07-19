@@ -8,7 +8,7 @@ use Module::Build;
 my $build = Module::Build->new(
   module_name => 'Nagios::NRPE',
   license => 'perl',
-  dist_author => 'Andreas Marschke <andreas.marschke@googlemail.com>',
+  dist_author => ['Andreas Marschke', 'Sven Nierlein', 'Franz Skale', 'Johan Carlquist <jocar@su.se>', 'Christian Biamont <cbeam@su.se>', 'Micke Nordin <mikael.nordin@su.se>'],
   meta_merge => {
     resources => {
       homepage => 'http://github.com/stockholmuniversity/nagios-nrpe',
