@@ -49,13 +49,6 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
 A simple daemon implementation with the capabillity to add your own callbacks 
 and hooks in case you want to build your own NRPE Server.
 
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2017 by the authors (see AUTHORS file).
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
 =cut
 
 package Nagios::NRPE::Daemon;
@@ -80,33 +73,37 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   STATE_WARNING
   STATE_OK);
 
+=pod
+
+=head1 SUBROUTINES
+
 =over
 
 =item new()
 
 Takes the following options as a hashref:
 
-=item listen:
+ * listen:
 
 Listen on this IP Address
 
-=item port:
+ * port:
 
 Port to listen on
 
-=item pid_dir
+ * pid_dir
 
 The pidfile for this daemon
 
-=item ssl
+ * ssl
 
 Use ssl (1|0)
 
-=item commandlist
+ * commandlist
 
 A hashref of the allowed commands on the daemon
 
-=item callback
+ * callback
 
 A sub executed everytime a check should be run. Giving the daemon full control what should happen.
 
@@ -149,9 +146,11 @@ sub new {
     bless $self, $class;
 }
 
+=pod
+
 =over
 
-=item start
+=item start()
 
 Starts the server and enters the Loop listening for packets
 
@@ -188,9 +187,11 @@ sub start {
     }
 }
 
+=pod
+
 =over
 
-=item commandlist
+=item commandlist()
 
 A hashref of elements that are valid commands.
 An example for it is:
@@ -209,9 +210,11 @@ sub commandlist {
     return $self->{commandlist};
 }
 
+=pod
+
 =over
 
-=item create_socket
+=item create_socket()
 
 A shorthand function returning either an encrypted or unencrypted socket
 depending on wether ssl is set to 1 or 0.
@@ -253,4 +256,16 @@ sub create_socket {
     }
     return $socket;
 }
+
+=pod
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2017 by the authors (see AUTHORS file).
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
 1;

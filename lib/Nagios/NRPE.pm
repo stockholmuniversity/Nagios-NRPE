@@ -23,9 +23,7 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
  use IO::Socket::INET;
  # Import necessary constants into Namespace
  use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
-                             NRPE_PACKET_VERSION_2
                              NRPE_PACKET_QUERY
-                             MAX_PACKETBUFFER_LENGTH
                              STATE_UNKNOWN
                              STATE_CRITICAL
                              STATE_WARNING
