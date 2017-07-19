@@ -165,7 +165,7 @@ sub create_socket {
     else {
         $socket_opts{Proto} = 'tcp';
         $socket_opts{Type}  = SOCK_STREAM;
-        $socket             = IO::Socket::INET->new(%socket_opts);
+        $socket             = IO::Socket::INET6->new(%socket_opts);
         $reason             = $@;
     }
 
