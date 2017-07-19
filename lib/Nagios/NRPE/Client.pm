@@ -156,7 +156,7 @@ sub create_socket {
         $socket_opts{SSL_verify_mode} = SSL_VERIFY_NONE;
         $socket_opts{SSL_version}     = 'TLSv1';
 
-        $socket = IO::Socket::SSL->new( %socket_opts );
+        $socket = IO::Socket::SSL->new(%socket_opts);
         if ($SSL_ERROR) {
             $reason = "$!,$SSL_ERROR";
         }
@@ -165,7 +165,7 @@ sub create_socket {
     else {
         $socket_opts{Proto} = 'tcp';
         $socket_opts{Type}  = SOCK_STREAM;
-        $socket             = IO::Socket::INET->new( %socket_opts );
+        $socket             = IO::Socket::INET->new(%socket_opts);
         $reason             = $@;
     }
 
