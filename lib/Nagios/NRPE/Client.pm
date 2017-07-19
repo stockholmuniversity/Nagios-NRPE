@@ -121,6 +121,7 @@ Helper function that can create either an INET socket or a SSL socket
 =back
 
 =cut 
+
 sub create_socket {
     my ($self) = @_;
     my $reason;
