@@ -44,7 +44,7 @@ use warnings;
 use Data::Dumper;
 use Carp;
 use IO::Socket;
-use IO::Socket::INET;
+use IO::Socket::INET6;
 use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   NRPE_PACKET_VERSION_2
   NRPE_PACKET_QUERY
@@ -101,12 +101,15 @@ Use or don't use SSL
 sub new {
     my ( $class, %hash ) = @_;
     my $self = {};
-    $self->{host}    = delete $hash{host}    || "localhost";
-    $self->{port}    = delete $hash{port}    || 5666;
-    $self->{timeout} = delete $hash{timeout} || 30;
-    $self->{arglist} = delete $hash{arglist} || [];
-    $self->{check}   = delete $hash{check}   || "";
-    $self->{ssl}     = delete $hash{ssl}     || 0;
+    $self->{arglist}  = delete $hash{arglist}  || [];
+    $self->{bindaddr} = delete $hash{bindaddr} || 0;
+    $self->{check}    = delete $hash{check}    || "";
+    $self->{host}     = delete $hash{host}     || "localhost";
+    $self->{ipv4}     = delete $hash{ipv4}     || 0;
+    $self->{ipv6}     = delete $hash{ipv6}     || 0;
+    $self->{port}     = delete $hash{port}     || 5666;
+    $self->{ssl}      = delete $hash{ssl}      || 0;
+    $self->{timeout}  = delete $hash{timeout}  || 30;
     bless $self, $class;
 }
 
@@ -127,36 +130,43 @@ sub create_socket {
     my $reason;
     my $socket;
 
+    my %socket_opts = (
+
+        # where to connect
+        PeerHost => $self->{host},
+        PeerPort => $self->{port},
+        Timeout  => $self->{timeout}
+    );
+    if ( $self->{bindaddr} ) {
+        $socket_opts{LocalAddr} = $self->{bindaddr};
+    }
+    if ( $self->{ipv4} ) {
+        $socket_opts{Domain} = AF_INET;
+    }
+    if ( $self->{ipv6} ) {
+        $socket_opts{Domain} = AF_INET6;
+    }
     if ( $self->{ssl} ) {
         eval {
             # required for new IO::Socket::SSL versions
             use IO::Socket::SSL;
         };
 
-        $socket = IO::Socket::SSL->new(
+        $socket_opts{SSL_cipher_list} = 'ADH';
+        $socket_opts{SSL_verify_mode} = SSL_VERIFY_NONE;
+        $socket_opts{SSL_version}     = 'TLSv1';
 
-            # where to connect
-            PeerHost        => $self->{host},
-            PeerPort        => $self->{port},
-            SSL_cipher_list => 'ADH',
-            SSL_verify_mode => SSL_VERIFY_NONE,
-            SSL_version     => 'TLSv1',
-            Timeout         => $self->{timeout}
-        );
+        $socket = IO::Socket::SSL->new( %socket_opts );
         if ($SSL_ERROR) {
             $reason = "$!,$SSL_ERROR";
         }
 
     }
     else {
-        $socket = IO::Socket::INET->new(
-            PeerAddr => $self->{host},
-            PeerPort => $self->{port},
-            Proto    => 'tcp',
-            Timeout  => $self->{timeout},
-            Type     => SOCK_STREAM
-        );
-        $reason = $@;
+        $socket_opts{Proto} = 'tcp';
+        $socket_opts{Type}  = SOCK_STREAM;
+        $socket             = IO::Socket::INET->new( %socket_opts );
+        $reason             = $@;
     }
 
     if ( !$socket ) {
