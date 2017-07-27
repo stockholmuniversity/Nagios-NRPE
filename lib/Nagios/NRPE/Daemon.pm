@@ -63,7 +63,7 @@ use warnings;
 use Data::Dumper;
 use Carp;
 use IO::Socket;
-use IO::Socket::INET;
+use IO::Socket::INET6;
 use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   NRPE_PACKET_VERSION_2
   NRPE_PACKET_RESPONSE
@@ -176,11 +176,13 @@ sub start {
             my ( $command, @options ) = split /!/, $buffer;
 
             my $return = $self->{callback}( $self, $command, @options );
-            print $s $packet->assemble(
-                version => $version,
-                type    => NRPE_PACKET_RESPONSE,
-                check   => $return
-            );
+            eval {
+                print $s $packet->assemble(
+                    version => $version,
+                    type    => NRPE_PACKET_RESPONSE,
+                    check   => $return
+                );
+            };
 
             close($s);
         }
@@ -245,7 +247,7 @@ sub create_socket {
         ) or die( IO::Socket::SSL::errstr() );
     }
     else {
-        $socket = IO::Socket::INET->new(
+        $socket = IO::Socket::INET6->new(
             Listen    => 5,
             LocalAddr => $self->{host},
             LocalPort => $self->{port},
