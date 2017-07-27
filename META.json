@@ -1,0 +1,79 @@
+{
+   "abstract" : "A Nagios NRPE implementation in pure perl",
+   "author" : [
+      "Andreas Marschke",
+      "Sven Nierlein",
+      "Franz Skale",
+      "Johan Carlquist <jocar@su.se>",
+      "Christian Biamont <cbeam@su.se>",
+      "Micke Nordin <mikael.nordin@su.se>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Nagios-NRPE",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : "0",
+            "Test::Pod::Coverage" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.31"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Convert::Binary::C" : "0",
+            "Digest::CRC" : "0",
+            "IO::Socket" : "0",
+            "IO::Socket::INET6" : "0",
+            "constant" : "0",
+            "perl" : "5.010_000"
+         }
+      }
+   },
+   "provides" : {
+      "Nagios::NRPE" : {
+         "file" : "lib/Nagios/NRPE.pm",
+         "version" : "v1.0.2"
+      },
+      "Nagios::NRPE::Client" : {
+         "file" : "lib/Nagios/NRPE/Client.pm",
+         "version" : "v1.0.2"
+      },
+      "Nagios::NRPE::Daemon" : {
+         "file" : "lib/Nagios/NRPE/Daemon.pm",
+         "version" : "v1.0.2"
+      },
+      "Nagios::NRPE::Packet" : {
+         "file" : "lib/Nagios/NRPE/Packet.pm",
+         "version" : "v1.0.2"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "homepage" : "http://github.com/stockholmuniversity/nagios-nrpe",
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ],
+      "repository" : {
+         "url" : "git://github.com/stockholmuniversity/nagios-nrpe.git"
+      }
+   },
+   "version" : "v1.0.2"
+}
