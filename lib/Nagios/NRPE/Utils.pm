@@ -41,18 +41,16 @@ use strict;
 use warnings;
 require Exporter;
 
-our @ISA = qw(Exporter);
+our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(return_error);
 
-
 sub return_error {
-        my ($reason) = @_;
-        my %return;
-        $return{'error'}  = 1;
-        $return{'reason'} = $reason;
-        return ( \%return );
+    my ($reason) = @_;
+    my %return;
+    $return{'error'}  = 1;
+    $return{'reason'} = $reason;
+    return ( \%return );
 
 }
-
 
 1;

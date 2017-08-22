@@ -160,7 +160,7 @@ sub create_socket {
         $socket = IO::Socket::SSL->new(%socket_opts);
         if ($SSL_ERROR) {
             $reason = "$!,$SSL_ERROR";
-            return return_error( $reason);
+            return return_error($reason);
         }
 
     }
@@ -172,7 +172,7 @@ sub create_socket {
     }
 
     if ( !$socket ) {
-        return return_error( $reason);
+        return return_error($reason);
     }
 
     return $socket;
@@ -226,7 +226,7 @@ sub run {
     }
 
     my $socket = $self->create_socket();
-    if ( ref $socket eq "HASH"  ) {
+    if ( ref $socket eq "HASH" ) {
         return ($socket);
     }
     my $packet = Nagios::NRPE::Packet->new();
@@ -263,7 +263,7 @@ sub run {
 
         if ( !$response ) {
             my $reason = "No output from remote host";
-            return return_error($reason );
+            return return_error($reason);
         }
     }
     return $packet->disassemble($response);

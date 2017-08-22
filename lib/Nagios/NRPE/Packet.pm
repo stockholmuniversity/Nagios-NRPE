@@ -356,13 +356,14 @@ sub validate {
 
 sub deassemble {
     my ( $self, $packet ) = @_;
-    print "The deassemble function has been deprecated and will be removed in a future release, please use disassemble instead\n";
+    print
+"The deassemble function has been deprecated and will be removed in a future release, please use disassemble instead\n";
     return $self->disassemble($packet);
 }
 
 sub disassemble {
     my ( $self, $packet ) = @_;
-    if(! $packet) {
+    if ( !$packet ) {
         return_error("Could not disassemble packet, it seems empty");
     }
     my $ver = unpack( "n", $packet );
