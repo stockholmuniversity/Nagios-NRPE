@@ -9,7 +9,7 @@
       "Micke Nordin <mikael.nordin@su.se>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4216",
    "license" : [
       "perl_5"
    ],
