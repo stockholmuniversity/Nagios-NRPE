@@ -36,15 +36,14 @@ Create a hash with the specified error message using this format
 
 package Nagios::NRPE::Utils;
 
+our $VERSION = '1.0.3';
 use strict;
 use warnings;
-our $VERSION = '1.0.3';
 require Exporter;
 
-BEGIN {
-    my @ISA = qw(Exporter);
-    my @EXPORT_OK = qw(return_error);
-}
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(return_error);
+
 
 sub return_error {
         my ($reason) = @_;
