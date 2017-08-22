@@ -12,6 +12,7 @@ lib/Nagios/NRPE.pm
 lib/Nagios/NRPE/Client.pm
 lib/Nagios/NRPE/Daemon.pm
 lib/Nagios/NRPE/Packet.pm
+lib/Nagios/NRPE/Utils.pm
 share/nrpe.cfg
 share/protocol-nrpe.md
 t/packet.t
