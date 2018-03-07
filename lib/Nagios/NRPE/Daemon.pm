@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 =head1 NAME
 
 Nagios::NRPE::Daemon - A Nagios NRPE Daemon

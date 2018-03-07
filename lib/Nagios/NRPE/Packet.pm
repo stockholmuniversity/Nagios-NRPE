@@ -1,7 +1,3 @@
-#!/usr/bin/perl
-
-=pod
-
 =head1 NAME
 
 Nagios::NRPE::Packet - Assembly and disassembly of an NRPE packet
