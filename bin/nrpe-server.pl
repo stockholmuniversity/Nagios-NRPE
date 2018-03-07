@@ -41,7 +41,6 @@ use Config::File;
 use IPC::Cmd qw(run);
 use Nagios::NRPE::Daemon;
 use Nagios::NRPE::Packet qw(STATE_OK STATE_CRITICAL STATE_UNKNOWN);
-use threads;
 
 our $VERSION = '1.0.3';
 
@@ -139,4 +138,4 @@ my $daemon = Nagios::NRPE::Daemon->new(
     }
 );
 
-threads->new( $daemon->start() );
+$daemon->start();
