@@ -9,9 +9,6 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
  use Nagios::NRPE::Daemon;
  use IPC::Cmd qw(can_run run run_forked);
 
- # create the commandlist we accept
- my $commandlist = 
- };
  my $callback = sub {
    my ($self,$check,@options) = @_;
    my $commandlist = $self->commandlist();
