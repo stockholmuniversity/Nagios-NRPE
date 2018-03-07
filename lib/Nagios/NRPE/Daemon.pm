@@ -7,7 +7,8 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
 =head1 SYNOPSIS
 
     use Nagios::NRPE::Daemon;
-    use IPC::Cmd qw(can_run run run_forked);
+    use Nagios::NRPE::Packet qw(STATE_OK STATE_CRITICAL STATE_UNKNOWN);
+    use IPC::Cmd qw(run);
 
     my $callback = sub {
         my ( $self, $check, @options ) = @_;
@@ -17,19 +18,20 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
             my $i    = 0;
             foreach (@options) {
                 $i++;
-                $args =~ "s/\$ARG$i\$/$_/";
+                $args =~ s/\$ARG$i\$/$_/;
             }
-            my $buffer;
-            if (
-                scalar run(
-                    command => $commandlist->{$check}->{bin} . " " . $args,
-                    verbose => 0,
-                    buffer  => \$buffer,
-                    timeout => 20
-                )
-            ) {
-                return $buffer;
-            }
+            my ($success, undef, undef, $stdout_buff) = run(
+                command => $commandlist->{$check}->{bin} . " " . $args,
+                verbose => 0,
+                timeout => 20
+            );
+            my $stdout = join('', @$stdout_buff);
+            chomp $stdout;
+            # To return the same exit code as the check binary we should've
+            # used IPC::Run or IPC::Cmd::run_forked
+            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
+        } else {
+            return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
         }
     };
 
@@ -120,19 +122,20 @@ A sub executed everytime a check should be run. Giving the daemon full control w
             my $i    = 0;
             foreach (@options) {
                 $i++;
-                $args =~ "s/\$ARG$i\$/$_/";
+                $args =~ s/\$ARG$i\$/$_/;
             }
-            my $buffer;
-            if (
-                scalar run(
-                    command => $commandlist->{$check}->{bin} . " " . $args,
-                    verbose => 0,
-                    buffer  => \$buffer,
-                    timeout => 20
-                )
-            ) {
-                return $buffer;
-            }
+            my ($success, undef, undef, $stdout_buff) = run(
+                command => $commandlist->{$check}->{bin} . " " . $args,
+                verbose => 0,
+                timeout => 20
+            );
+            my $stdout = join('', @$stdout_buff);
+            chomp $stdout;
+            # To return the same exit code as the check binary we should've
+            # used IPC::Run or IPC::Cmd::run_forked
+            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
+        } else {
+            return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
         }
     };
 
@@ -183,12 +186,14 @@ sub start {
             my $version          = $unpacked_request->{packet_version};
             my ( $command, @options ) = split /!/, $buffer;
 
-            my $return = $self->{callback}( $self, $command, @options );
+            my ( $code, $return ) =
+                $self->{callback}( $self, $command, @options );
             eval {
                 print $s $packet->assemble(
-                    version => $version,
-                    type    => NRPE_PACKET_RESPONSE,
-                    check   => $return
+                    version     => $version,
+                    type        => NRPE_PACKET_RESPONSE,
+                    result_code => $code,
+                    check       => $return
                 );
             };
 

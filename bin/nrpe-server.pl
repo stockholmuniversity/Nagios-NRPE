@@ -40,7 +40,7 @@ use Pod::Usage;
 use Config::File;
 use IPC::Cmd qw(run);
 use Nagios::NRPE::Daemon;
-use Nagios::NRPE::Packet;
+use Nagios::NRPE::Packet qw(STATE_OK STATE_CRITICAL STATE_UNKNOWN);
 use threads;
 
 our $VERSION = '1.0.3';
@@ -121,21 +121,20 @@ my $daemon = Nagios::NRPE::Daemon->new(
             my $i    = 0;
             foreach (@options) {
                 $i++;
-                $args =~ "s/\$ARG$i\$/$_/";
+                $args =~ s/\$ARG$i\$/$_/;
             }
-            my $buffer;
-            if (
-                scalar run(
-                    command => $commandlist->{$check}->{bin} . " " . $args,
-                    verbose => 0,
-                    buffer  => \$buffer,
-                    timeout => 20
-                )
-              )
-            {
-                chomp $buffer;
-                return $buffer;
-            }
+            my ($success, undef, undef, $stdout_buff) = run(
+                command => $commandlist->{$check}->{bin} . " " . $args,
+                verbose => 0,
+                timeout => 20
+            );
+            my $stdout = join('', @$stdout_buff);
+            chomp $stdout;
+            # To return the same exit code as the check binary we should've
+            # used IPC::Run or IPC::Cmd::run_forked
+            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
+        } else {
+            return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
         }
     }
 );
