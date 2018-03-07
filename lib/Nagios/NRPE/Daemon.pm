@@ -47,6 +47,8 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
         callback => $callback
     );
 
+    $daemon->start;
+
 =head1 DESCRIPTION
 
 A simple daemon implementation with the capabillity to add your own callbacks 
