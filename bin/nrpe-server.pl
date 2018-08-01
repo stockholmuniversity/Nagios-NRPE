@@ -81,6 +81,21 @@ elsif ( -e NRPE_CONF_DIR . "/nrpe.cfg" ) {
       or die "ERROR: Can't open config. Reason: $!";
 }
 
+my $include_dir = $config_hash->{include_dir};
+if ($include_dir) {
+    opendir(my $dh, $include_dir) || die "Can't opendir $include_dir: $!";
+    my @cfgs = grep { /\.cfg$/ && -f "$include_dir/$_" } readdir($dh);
+    closedir $dh;
+    foreach my $cfg (@cfgs) {
+        parse_config("$include_dir/$cfg");
+    };
+}
+
+my $include = $config_hash->{include};
+if ($include) {
+    parse_config($include);
+};
+
 $commandlist = $config_hash->{command};
 
 $listen = $listen_cmd || $config_hash->{server_address} || "127.0.0.1";
@@ -141,3 +156,19 @@ my $daemon = Nagios::NRPE::Daemon->new(
 );
 
 threads->new( $daemon->start() );
+
+sub parse_config {
+    my ($file) = @_;
+    my $additional_config_hash = Config::File::read_config_file($file)
+        or die "ERROR: Can't open config. Reason: $!";
+
+    my $command_hash = $additional_config_hash->{command};
+    if ($command_hash) {
+        foreach my $key (keys %$command_hash) {
+            my $value = $additional_config_hash->{command}->{$key};
+            $config_hash->{command}->{$key} = $value;
+        };
+    delete $additional_config_hash->{command};
+  };
+  $config_hash = { %$config_hash, %$additional_config_hash };
+};
