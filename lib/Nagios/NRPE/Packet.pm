@@ -255,14 +255,16 @@ sub new {
     my ( $class, %options ) = @_;
     my $self = {};
 
-    # taken with modifications from common.h in nagios-nrpe
-    my $c = Convert::Binary::C->new( ByteOrder => 'BigEndian', Alignment => 0 );
-    $self->{c} = $c;
     bless $self, $class;
 }
 
 sub assemble {
     my ( $self, %options ) = @_;
+
+    # taken with modifications from common.h in nagios-nrpe
+    my $c = Convert::Binary::C->new( ByteOrder => 'BigEndian', Alignment => 0 );
+    $self->{c} = $c;
+
     croak "ERROR: Cannot send Packet with empty buffer!"
       if ( not defined $options{check} );
     my $packed;
