@@ -62,7 +62,8 @@ use warnings;
 
 use Data::Dumper;
 use Carp;
-use IO::Socket;
+
+#use IO::Socket;
 use IO::Socket::INET6;
 use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   NRPE_PACKET_VERSION_2
@@ -132,16 +133,20 @@ A sub executed everytime a check should be run. Giving the daemon full control w
 
 =cut
 
-sub new {
-    my ( $class, %hash ) = @_;
+sub new
+{
+    my ($class, %hash) = @_;
     my $self = {};
 
-    $self->{listen}      = delete $hash{listen}      || "0.0.0.0";
-    $self->{port}        = delete $hash{port}        || "5666";
-    $self->{pid_dir}     = delete $hash{pid_dir}     || "/var/run";
-    $self->{ssl}         = delete $hash{ssl}         || 0;
-    $self->{commandlist} = delete $hash{commandlist} || {};
-    $self->{callback}    = delete $hash{callback}    || sub { };
+    $self->{listen}  = delete $hash{listen}  || "0.0.0.0";
+    $self->{port}    = delete $hash{port}    || "5666";
+    $self->{pid_dir} = delete $hash{pid_dir} || "/var/run";
+    $self->{ssl}     = delete $hash{ssl}     || 0;
+    $self->{SSL_cert_file}   = delete $hash{SSL_cert_file};
+    $self->{SSL_key_file}    = delete $hash{SSL_key_file};
+    $self->{SSL_cipher_list} = delete $hash{SSL_cipher_list};
+    $self->{commandlist}     = delete $hash{commandlist} || {};
+    $self->{callback}        = delete $hash{callback} || sub { };
 
     bless $self, $class;
 }
@@ -158,30 +163,33 @@ Starts the server and enters the Loop listening for packets
 
 =cut
 
-sub start {
+sub start
+{
     my $self     = shift;
     my $packet   = Nagios::NRPE::Packet->new();
     my $callback = $self->{callback};
-    my ( $socket, $s );
+    my ($socket, $s);
 
     $socket = $self->create_socket();
 
-    while (1) {
-        while ( ( $s = $socket->accept() ) ) {
+    while (1)
+    {
+        while (($s = $socket->accept()))
+        {
             my $request;
-            $s->recv( $request, 1036 );
+            $s->sysread($request, 1036);
             my $unpacked_request = $packet->disassemble($request);
             my $buffer           = $unpacked_request->{buffer};
             my $version          = $unpacked_request->{packet_version};
-            my ( $command, @options ) = split /!/, $buffer;
+            my ($command, @options) = split /!/, $buffer;
 
-            my $return = $self->{callback}( $self, $command, @options );
+            my $return = $self->{callback}($self, $command, @options);
             eval {
                 print $s $packet->assemble(
-                    version => $version,
-                    type    => NRPE_PACKET_RESPONSE,
-                    check   => $return
-                );
+                                           version => $version,
+                                           type    => NRPE_PACKET_RESPONSE,
+                                           check   => $return
+                                          );
             };
 
             close($s);
@@ -207,7 +215,8 @@ C<args> can contain $ARG1$ elements like normal nrpe.cfg command elements.
 
 =cut
 
-sub commandlist {
+sub commandlist
+{
     my $self = shift;
     return $self->{commandlist};
 }
@@ -225,36 +234,51 @@ depending on wether ssl is set to 1 or 0.
 
 =cut
 
-sub create_socket {
+sub create_socket
+{
     my $self = shift;
     my $socket;
 
-    if ( $self->{ssl} ) {
+    if ($self->{ssl})
+    {
         eval {
             # required for new IO::Socket::SSL versions
             require IO::Socket::SSL;
             IO::Socket::SSL->import();
-            IO::Socket::SSL::set_ctx_defaults( SSL_verify_mode => 0 );
+            IO::Socket::SSL::set_ctx_defaults(SSL_verify_mode => 0);
         };
-        $socket = IO::Socket::SSL->new(
-            Listen          => 5,
-            LocalAddr       => $self->{host},
-            LocalPort       => $self->{port},
-            Proto           => 'tcp',
-            Reuse           => 1,
-            SSL_verify_mode => 0x01,
-            Type            => SOCK_STREAM
-        ) or die( IO::Socket::SSL::errstr() );
+        my $options = {
+                       Listen          => 5,
+                       LocalAddr       => $self->{host},
+                       LocalPort       => $self->{port},
+                       Proto           => 'tcp',
+                       Reuse           => 1,
+                       SSL_verify_mode => 0x01,
+                       Type            => SOCK_STREAM
+                      };
+        if ($self->{SSL_cipher_list})
+        {
+            $options->{SSL_cipher_list} = $self->{SSL_cipher_list};
+        }
+        if ($self->{SSL_cert_file} && $self->{SSL_key_file})
+        {
+            $options->{SSL_cert_file} = $self->{SSL_cert_file};
+            $options->{SSL_key_file}  = $self->{SSL_key_file};
+        }
+        $socket = IO::Socket::SSL->new(%{$options})
+          or die(IO::Socket::SSL::errstr());
     }
-    else {
+    else
+    {
         $socket = IO::Socket::INET6->new(
-            Listen    => 5,
-            LocalAddr => $self->{host},
-            LocalPort => $self->{port},
-            Reuse     => 1,
-            Proto     => 'tcp',
-            Type      => SOCK_STREAM
-        ) or die "ERROR: $@ \n";
+                                         Listen    => 5,
+                                         LocalAddr => $self->{host},
+                                         LocalPort => $self->{port},
+                                         Reuse     => 1,
+                                         Proto     => 'tcp',
+                                         Type      => SOCK_STREAM
+                                        )
+          or die "ERROR: $@ \n";
     }
     return $socket;
 }
