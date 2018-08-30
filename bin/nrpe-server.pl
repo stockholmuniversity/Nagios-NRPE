@@ -46,15 +46,16 @@ use threads;
 our $VERSION = '1.0.3';
 
 use constant { NRPE_CONF_DIR => '/etc/nagios' };
-my ( $listen_cmd, $port_cmd, $config_cmd, $pid_cmd, $ssl_cmd );
+my ( $listen_cmd, $port_cmd, $config_cmd, $pid_cmd, $ssl_cmd, $adh_cmd );
 
 my $result = GetOptions(
-    "l|listen=s" => \$listen_cmd,
-    "p|port=s"   => \$port_cmd,
-    "c|config=s" => \$config_cmd,
-    "P|pid=s"    => \$pid_cmd,
-    "s|ssl"      => \$ssl_cmd,
-    "h|help"     => sub {
+    "l|listen=s"  => \$listen_cmd,
+    "p|port=s"    => \$port_cmd,
+    "c|config=s"  => \$config_cmd,
+    "P|pid=s"     => \$pid_cmd,
+    "s|ssl"       => \$ssl_cmd,
+    "d|use-adh=i" => \$adh_cmd,
+    "h|help"      => sub {
         pod2usage(
             -exitval   => 0,
             -verbose   => 99,
@@ -67,7 +68,8 @@ my (
     $listen,          $port,               $log_facillity,
     $pid,             $user,               $ssl,
     $nrpe_group,      $allowed_hosts,      $debug,
-    $command_timeout, $connection_timeout, $commandlist
+    $command_timeout, $connection_timeout, $commandlist,
+    $SSL_cert_file,   $SSL_key_file,       $SSL_cipher_list
 );
 
 my $config_hash;
@@ -83,18 +85,18 @@ elsif ( -e NRPE_CONF_DIR . "/nrpe.cfg" ) {
 
 my $include_dir = $config_hash->{include_dir};
 if ($include_dir) {
-    opendir(my $dh, $include_dir) || die "Can't opendir $include_dir: $!";
+    opendir( my $dh, $include_dir ) || die "Can't opendir $include_dir: $!";
     my @cfgs = grep { /\.cfg$/ && -f "$include_dir/$_" } readdir($dh);
     closedir $dh;
     foreach my $cfg (@cfgs) {
         parse_config("$include_dir/$cfg");
-    };
+    }
 }
 
 my $include = $config_hash->{include};
 if ($include) {
     parse_config($include);
-};
+}
 
 $commandlist = $config_hash->{command};
 
@@ -105,6 +107,10 @@ $ssl = 1 if defined $ssl_cmd;
 $allowed_hosts      = $config_hash->{allowed_hosts}      || "0.0.0.0";
 $command_timeout    = $config_hash->{command_timeout}    || "60";
 $connection_timeout = $config_hash->{connection_timeout} || 300;
+$SSL_cert_file      = $config_hash->{SSL_cert_file}
+  || "/etc/ssl/certs/ssl-cert-snakeoil.pem";
+$SSL_key_file = $config_hash->{SSL_key_file}
+  || "/etc/ssl/private/ssl-cert-snakeoil.key";
 
 die "No Commands to execute given." if ( not defined $commandlist );
 
@@ -121,8 +127,7 @@ foreach ( keys %$commandlist ) {
     $hashref->{args} = $argstr;
     $commandlist->{$_} = $hashref;
 }
-
-my $daemon = Nagios::NRPE::Daemon->new(
+my %dopts = (
     listen      => $listen,
     port        => $port,
     pid_dir     => $pid,
@@ -152,23 +157,33 @@ my $daemon = Nagios::NRPE::Daemon->new(
                 return $buffer;
             }
         }
-    }
+      }
+
 );
+
+if ( defined($adh_cmd) ) {
+    $dopts{SSL_cipher_list} = "ADH";
+}
+else {
+    $dopts{SSL_cert_file} = $SSL_cert_file;
+    $dopts{SSL_key_file}  = $SSL_key_file;
+}
+my $daemon = Nagios::NRPE::Daemon->new( %dopts );
 
 threads->new( $daemon->start() );
 
 sub parse_config {
     my ($file) = @_;
     my $additional_config_hash = Config::File::read_config_file($file)
-        or die "ERROR: Can't open config. Reason: $!";
+      or die "ERROR: Can't open config. Reason: $!";
 
     my $command_hash = $additional_config_hash->{command};
     if ($command_hash) {
-        foreach my $key (keys %$command_hash) {
+        foreach my $key ( keys %$command_hash ) {
             my $value = $additional_config_hash->{command}->{$key};
             $config_hash->{command}->{$key} = $value;
-        };
-    delete $additional_config_hash->{command};
-  };
-  $config_hash = { %$config_hash, %$additional_config_hash };
-};
+        }
+        delete $additional_config_hash->{command};
+    }
+    $config_hash = { %$config_hash, %$additional_config_hash };
+}

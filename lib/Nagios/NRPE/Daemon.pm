@@ -142,9 +142,9 @@ sub new
     $self->{port}    = delete $hash{port}    || "5666";
     $self->{pid_dir} = delete $hash{pid_dir} || "/var/run";
     $self->{ssl}     = delete $hash{ssl}     || 0;
-    $self->{SSL_cert_file}   = delete $hash{SSL_cert_file};
-    $self->{SSL_key_file}    = delete $hash{SSL_key_file};
-    $self->{SSL_cipher_list} = delete $hash{SSL_cipher_list};
+    $self->{SSL_cert_file}   = delete $hash{SSL_cert_file} || undef;
+    $self->{SSL_key_file}    = delete $hash{SSL_key_file} || undef;
+    $self->{SSL_cipher_list} = delete $hash{SSL_cipher_list} || undef;
     $self->{commandlist}     = delete $hash{commandlist} || {};
     $self->{callback}        = delete $hash{callback} || sub { };
 
