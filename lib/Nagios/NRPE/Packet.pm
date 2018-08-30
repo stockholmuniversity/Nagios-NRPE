@@ -280,12 +280,16 @@ sub assemble {
 
 sub assemble_v3 {
     my ( $self, %options ) = @_;
+    my $buffer = $options{check};
+    my $len      = length( $buffer ) +1;
+    if ($len < 1024) {
+        $buffer = pack("Z1024", $options{check});
+        $len      = length( $buffer ) +1;
+    }
     my $unpacked = {};
-    my $len      = length( $options{check} ) + 1;
-
     $unpacked->{alignment}      = 0;
     $unpacked->{buffer_length}  = $len;
-    $unpacked->{buffer}         = $options{check};
+    $unpacked->{buffer}         = $buffer;
     $unpacked->{crc32_value}    = "\x00\x00\x00\x00";
     $unpacked->{packet_type}    = $options{type} || NRPE_PACKET_QUERY;
     $unpacked->{packet_version} = NRPE_PACKET_VERSION_3;
