@@ -138,15 +138,15 @@ sub new
     my ($class, %hash) = @_;
     my $self = {};
 
-    $self->{listen}  = delete $hash{listen}  || "0.0.0.0";
-    $self->{port}    = delete $hash{port}    || "5666";
-    $self->{pid_dir} = delete $hash{pid_dir} || "/var/run";
-    $self->{ssl}     = delete $hash{ssl}     || 0;
-    $self->{SSL_cert_file}   = delete $hash{SSL_cert_file} || undef;
-    $self->{SSL_key_file}    = delete $hash{SSL_key_file} || undef;
+    $self->{listen}          = delete $hash{listen}          || "0.0.0.0";
+    $self->{port}            = delete $hash{port}            || "5666";
+    $self->{pid_dir}         = delete $hash{pid_dir}         || "/var/run";
+    $self->{ssl}             = delete $hash{ssl}             || 0;
+    $self->{SSL_cert_file}   = delete $hash{SSL_cert_file}   || undef;
+    $self->{SSL_key_file}    = delete $hash{SSL_key_file}    || undef;
     $self->{SSL_cipher_list} = delete $hash{SSL_cipher_list} || undef;
-    $self->{commandlist}     = delete $hash{commandlist} || {};
-    $self->{callback}        = delete $hash{callback} || sub { };
+    $self->{commandlist}     = delete $hash{commandlist}     || {};
+    $self->{callback}        = delete $hash{callback}        || sub { };
 
     bless $self, $class;
 }
@@ -249,7 +249,7 @@ sub create_socket
         };
         my $options = {
                        Listen          => 5,
-                       LocalAddr       => $self->{host},
+                       LocalAddr       => $self->{listen},
                        LocalPort       => $self->{port},
                        Proto           => 'tcp',
                        Reuse           => 1,
@@ -272,13 +272,12 @@ sub create_socket
     {
         $socket = IO::Socket::INET6->new(
                                          Listen    => 5,
-                                         LocalAddr => $self->{host},
+                                         LocalAddr => $self->{listen},
                                          LocalPort => $self->{port},
                                          Reuse     => 1,
                                          Proto     => 'tcp',
                                          Type      => SOCK_STREAM
-                                        )
-          or die "ERROR: $@ \n";
+                                        ) or die "ERROR: $@ \n";
     }
     return $socket;
 }
