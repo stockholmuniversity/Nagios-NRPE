@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 =head1 NAME
 
 Nagios::NRPE - A Nagios NRPE implementation in pure perl

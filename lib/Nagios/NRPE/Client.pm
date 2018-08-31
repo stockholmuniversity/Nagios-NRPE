@@ -1,7 +1,3 @@
-#!/usr/bin/perl
-
-=pod
-
 =head1 NAME
 
 Nagios::NRPE::Client - A Nagios NRPE client

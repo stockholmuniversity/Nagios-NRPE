@@ -1,48 +1,53 @@
-#!/usr/bin/perl
-
 =head1 NAME
 
 Nagios::NRPE::Daemon - A Nagios NRPE Daemon
 
 =head1 SYNOPSIS
 
- use Nagios::NRPE::Daemon;
- use IPC::Cmd qw(can_run run run_forked);
+    use Nagios::NRPE::Daemon;
+    use Nagios::NRPE::Packet qw(STATE_OK STATE_CRITICAL STATE_UNKNOWN);
+    use IPC::Cmd qw(run);
 
- # create the commandlist we accept
- my $commandlist = 
- };
- my $callback = sub {
-   my ($self,$check,@options) = @_;
-   my $commandlist = $self->commandlist();
-   if ($commandlist->{$check}) {
-     my $args = $commandlist->{$check}->{args};
-     my $i = 0;
-     foreach (@options) {
-       $i++;
-       $args =~ "s/\$ARG$i\$/$_/";
-     }
-     my $buffer;
-     if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
-                    verbose => 0,
-                    buffer => \$buffer,
-                    timeout => 20)) {
-       return $buffer;
-     }
-   }
- };
+    my $callback = sub {
+        my ( $self, $check, @options ) = @_;
+        my $commandlist = $self->commandlist();
+        if ( $commandlist->{$check} ) {
+            my $args = $commandlist->{$check}->{args};
+            my $i    = 0;
+            foreach (@options) {
+                $i++;
+                $args =~ s/\$ARG$i\$/$_/;
+            }
+            my ($success, undef, undef, $stdout_buff) = run(
+                command => $commandlist->{$check}->{bin} . " " . $args,
+                verbose => 0,
+                timeout => 20
+            );
+            my $stdout = join('', @$stdout_buff);
+            chomp $stdout;
+            # To return the same exit code as the check binary we should've
+            # used IPC::Run or IPC::Cmd::run_forked
+            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
+        } else {
+            return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
+        }
+    };
 
- my $daemon = Nagios::NRPE::Daemon->new(
-   listen => "127.0.0.1",
-   port => "5666",
-   pid_dir => '/var/run',
-   ssl => 0,
-   commandlist => {
-     "check_cpu" => { bin => "/usr/lib/nagios/plugin/check_cpu",
-                      args => "-w 50 -c 80" }
-   },
-   callback => $callback
- );
+    my $daemon = Nagios::NRPE::Daemon->new(
+        listen      => "127.0.0.1",
+        port        => "5666",
+        pid_dir     => '/var/run',
+        ssl         => 0,
+        commandlist => {
+            "check_cpu" => {
+                bin  => "/usr/lib/nagios/plugin/check_cpu",
+                args => "-w 50 -c 80"
+            }
+        },
+        callback => $callback
+    );
+
+    $daemon->start;
 
 =head1 DESCRIPTION
 
@@ -108,26 +113,30 @@ A hashref of the allowed commands on the daemon
 
 A sub executed everytime a check should be run. Giving the daemon full control what should happen.
 
- my $callback = sub {
-   my ($self,$check,@options) = @_;
-   my $commandlist = $self->commandlist();
-   if ($commandlist->{$check}) {
-     my $args = $commandlist->{$check}->{args};
-     my $i = 0;
-     foreach (@options) {
-       $i++;
-       $args =~ "s/\$ARG$i\$/$_/";
-     }
-     my $buffer;
-     if (scalar run(command => $commandlist->{$check}->{bin} . " " . $args,
-                    verbose => 0,
-                    buffer => \$buffer,
-                    timeout => 20)) {
-       return $buffer;
-     }
-   }
- };
-
+    my $callback = sub {
+        my ( $self, $check, @options ) = @_;
+        my $commandlist = $self->commandlist();
+        if ( $commandlist->{$check} ) {
+            my $args = $commandlist->{$check}->{args};
+            my $i    = 0;
+            foreach (@options) {
+                $i++;
+                $args =~ s/\$ARG$i\$/$_/;
+            }
+            my ($success, undef, undef, $stdout_buff) = run(
+                command => $commandlist->{$check}->{bin} . " " . $args,
+                verbose => 0,
+                timeout => 20
+            );
+            my $stdout = join('', @$stdout_buff);
+            chomp $stdout;
+            # To return the same exit code as the check binary we should've
+            # used IPC::Run or IPC::Cmd::run_forked
+            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
+        } else {
+            return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
+        }
+    };
 
 =back
 
