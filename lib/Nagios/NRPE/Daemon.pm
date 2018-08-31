@@ -5,32 +5,33 @@ Nagios::NRPE::Daemon - A Nagios NRPE Daemon
 =head1 SYNOPSIS
 
     use Nagios::NRPE::Daemon;
-    use Nagios::NRPE::Packet qw(STATE_OK STATE_CRITICAL STATE_UNKNOWN);
-    use IPC::Cmd qw(run);
+    use Nagios::NRPE::Packet qw(STATE_UNKNOWN);
+    use IPC::Cmd qw(run_forked);
 
     my $callback = sub {
-        my ( $self, $check, @options ) = @_;
+        my ($self, $check, @options) = @_;
         my $commandlist = $self->commandlist();
-        if ( $commandlist->{$check} ) {
+        if ($commandlist->{$check})
+        {
             my $args = $commandlist->{$check}->{args};
             my $i    = 0;
-            foreach (@options) {
+            foreach (@options)
+            {
                 $i++;
                 $args =~ s/\$ARG$i\$/$_/;
             }
-            my ($success, undef, undef, $stdout_buff) = run(
-                command => $commandlist->{$check}->{bin} . " " . $args,
-                verbose => 0,
-                timeout => 20
-            );
-            my $stdout = join('', @$stdout_buff);
+            my $result =
+              run_forked($commandlist->{$check}->{bin} . " " . $args,
+                         {timeout => 20});
+            my $stdout = $result->{stdout};
             chomp $stdout;
-            # To return the same exit code as the check binary we should've
-            # used IPC::Run or IPC::Cmd::run_forked
-            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
-        } else {
+            return ($result->{exit_code}, $stdout);
+        }
+        else
+        {
             return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
         }
+
     };
 
     my $daemon = Nagios::NRPE::Daemon->new(
@@ -114,26 +115,26 @@ A hashref of the allowed commands on the daemon
 A sub executed everytime a check should be run. Giving the daemon full control what should happen.
 
     my $callback = sub {
-        my ( $self, $check, @options ) = @_;
+        my ($self, $check, @options) = @_;
         my $commandlist = $self->commandlist();
-        if ( $commandlist->{$check} ) {
+        if ($commandlist->{$check})
+        {
             my $args = $commandlist->{$check}->{args};
             my $i    = 0;
-            foreach (@options) {
+            foreach (@options)
+            {
                 $i++;
                 $args =~ s/\$ARG$i\$/$_/;
             }
-            my ($success, undef, undef, $stdout_buff) = run(
-                command => $commandlist->{$check}->{bin} . " " . $args,
-                verbose => 0,
-                timeout => 20
-            );
-            my $stdout = join('', @$stdout_buff);
+            my $result =
+              run_forked($commandlist->{$check}->{bin} . " " . $args,
+                         {timeout => 20});
+            my $stdout = $result->{stdout};
             chomp $stdout;
-            # To return the same exit code as the check binary we should've
-            # used IPC::Run or IPC::Cmd::run_forked
-            return ($success ? STATE_OK : STATE_CRITICAL, $stdout);
-        } else {
+            return ($result->{exit_code}, $stdout);
+        }
+        else
+        {
             return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
         }
     };
