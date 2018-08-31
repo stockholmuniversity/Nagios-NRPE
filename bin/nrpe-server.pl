@@ -38,9 +38,9 @@ use Getopt::Long;
 use IO::File;
 use Pod::Usage;
 use Config::File;
-use IPC::Cmd qw(run);
+use IPC::Cmd qw(run_forked);
 use Nagios::NRPE::Daemon;
-use Nagios::NRPE::Packet;
+use Nagios::NRPE::Packet qw(STATE_UNKNOWN);
 use threads;
 
 our $VERSION = '1.0.3';
@@ -150,24 +150,20 @@ my %dopts = (
             foreach (@options)
             {
                 $i++;
-                $args =~ "s/\$ARG$i\$/$_/";
+                $args =~ s/\$ARG$i\$/$_/;
             }
-            my $buffer;
-            if (
-                scalar run(
-                         command => $commandlist->{$check}->{bin} . " " . $args,
-                         verbose => 0,
-                         buffer  => \$buffer,
-                         timeout => 20
-                )
-               )
-            {
-                chomp $buffer;
-                return $buffer;
-            }
+            my $result =
+              run_forked($commandlist->{$check}->{bin} . " " . $args,
+                         {timeout => 20});
+            my $stdout = $result->{stdout};
+            chomp $stdout;
+            return ($result->{exit_code}, $stdout);
         }
-      }
-
+        else
+        {
+            return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
+        }
+    }
 );
 
 if (defined($adh_cmd))
@@ -181,7 +177,7 @@ else
 }
 my $daemon = Nagios::NRPE::Daemon->new(%dopts);
 
-threads->new($daemon->start());
+$daemon->start();
 
 sub parse_config
 {

@@ -183,12 +183,13 @@ sub start
             my $version          = $unpacked_request->{packet_version};
             my ($command, @options) = split /!/, $buffer;
 
-            my $return = $self->{callback}($self, $command, @options);
+            my ($code, $return) = $self->{callback}($self, $command, @options);
             eval {
                 print $s $packet->assemble(
-                                           version => $version,
-                                           type    => NRPE_PACKET_RESPONSE,
-                                           check   => $return
+                                           version     => $version,
+                                           type        => NRPE_PACKET_RESPONSE,
+                                           result_code => $code,
+                                           check       => $return
                                           );
             };
 
