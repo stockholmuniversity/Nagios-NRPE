@@ -76,6 +76,8 @@ use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   STATE_CRITICAL
   STATE_WARNING
   STATE_OK);
+use Net::Subnet;
+use Time::HiRes qw(usleep);
 
 =pod
 
@@ -155,10 +157,28 @@ sub new
     $self->{commandlist}     = delete $hash{commandlist}     || {};
     $self->{callback}        = delete $hash{callback}        || sub { };
 
+    foreach my $address (split(",", $hash{allowed_hosts}))
+    {
+        if ( $address !~ m#/\d{1,3}$#) {
+            my $suffix;
+            if ( $address =~ m/:/) {
+                $suffix = 128;
+            } else {
+                $suffix = 32;
+            };
+            push(@{$self->{allowed_hosts}},"$address/$suffix")
+        } else {
+            push(@{$self->{allowed_hosts}},$address);
+        }
+    }
+    delete $hash{allowed_hosts};
+    $self->{matcher} = subnet_matcher @{$self->{allowed_hosts}};
+
     bless $self, $class;
 }
 
 =pod
+
 
 =over
 
@@ -183,6 +203,20 @@ sub start
     {
         while (($s = $socket->accept()))
         {
+            my $peerhost = $s->peerhost;
+
+            if ($peerhost =~ /^::ffff:(.+)$/) {
+                 $peerhost = $1;
+            };
+            if (!$self->{matcher}->($peerhost)){
+                $socket->sockopt(SO_LINGER, pack("ii", 1, 0)) or die "sockopt: $!\n";
+                close($s);
+                $socket->close;
+                usleep(500);
+                $socket = $self->create_socket();
+                last;
+            };
+
             my $request;
             $s->sysread($request, 1036);
             my $unpacked_request = $packet->disassemble($request);
