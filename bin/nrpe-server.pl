@@ -136,12 +136,7 @@ foreach (keys %$commandlist)
 }
 my %dopts = (
     allowed_hosts => $allowed_hosts,
-    listen      => $listen,
-    port        => $port,
-    pid_dir     => $pid,
-    ssl         => $ssl,
-    commandlist => $commandlist,
-    callback    => sub {
+    callback      => sub {
         my ($self, $check, @options) = @_;
         my $commandlist = $self->commandlist();
         if ($commandlist->{$check})
@@ -164,7 +159,12 @@ my %dopts = (
         {
             return (STATE_UNKNOWN, sprintf "No such check: '%s'", $check);
         }
-    }
+    },
+    commandlist   => $commandlist,
+    listen       => $listen,
+    pid_dir      => $pid,
+    port         => $port,
+    ssl          => $ssl,
 );
 
 
