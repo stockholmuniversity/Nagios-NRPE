@@ -135,6 +135,7 @@ foreach (keys %$commandlist)
     $commandlist->{$_} = $hashref;
 }
 my %dopts = (
+    allowed_hosts => $allowed_hosts,
     listen      => $listen,
     port        => $port,
     pid_dir     => $pid,
