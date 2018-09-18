@@ -69,7 +69,6 @@ use warnings;
 use Data::Dumper;
 use Carp;
 
-#use IO::Socket;
 use IO::Socket::INET6;
 use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
   NRPE_PACKET_VERSION_2
