@@ -91,10 +91,6 @@ A helper function to assemble a V2 packet.
 
 A helper function to assemble a V3 packet.
 
-=item deassemble()
-
-Deprecated function, use disassemble instead.
-
 =item disassemble()
 
 Takes a packet recieved by either client or server and disassembles them. The returned hashref contains 
@@ -374,14 +370,6 @@ sub validate
     {
         return 1;
     }
-}
-
-sub deassemble
-{
-    my ($self, $packet) = @_;
-    print
-      "The deassemble function has been deprecated and will be removed in a future release, please use disassemble instead\n";
-    return $self->disassemble($packet);
 }
 
 sub disassemble
