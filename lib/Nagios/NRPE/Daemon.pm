@@ -59,7 +59,7 @@ and hooks in case you want to build your own NRPE Server.
 
 package Nagios::NRPE::Daemon;
 
-our $VERSION = '1.0.3';
+our $VERSION = '2.0.0-rc01';
 
 use 5.010_000;
 

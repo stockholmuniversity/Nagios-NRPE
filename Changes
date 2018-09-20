@@ -1,3 +1,9 @@
+2.0.0 2018-09-20
+ - Fix missing exit codes from check
+ - NRPE v3 now working properly with "short" outputs
+ - Better SSL handling
+ - Deassemble function removed
+
 1.0.3 2017-08-22
  - Add Utils.pm that contains common helper functions.
  - Fix error handling in Packet.pm
