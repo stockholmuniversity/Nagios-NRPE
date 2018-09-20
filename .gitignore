@@ -8,6 +8,7 @@
 .build/
 /*.tar.gz
 /Build
+/MYMETA.*
 /Makefile
 /Module-Build-*
 /Module-Build-Tiny-*
