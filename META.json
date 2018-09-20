@@ -9,13 +9,13 @@
       "Micke Nordin <mikael.nordin@su.se>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4216",
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.133380",
    "license" : [
       "perl_5"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "Nagios-NRPE",
    "no_index" : {
@@ -42,6 +42,8 @@
             "Digest::CRC" : "0",
             "IO::Socket" : "0",
             "IO::Socket::INET6" : "0",
+            "Net::Subnet" : "0",
+            "Time::HiRes" : "0",
             "constant" : "0",
             "perl" : "5.010_000"
          }
@@ -76,6 +78,7 @@
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
+         "type" : "git",
          "url" : "git://github.com/stockholmuniversity/nagios-nrpe.git"
       }
    },
