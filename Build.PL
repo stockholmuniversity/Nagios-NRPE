@@ -10,12 +10,12 @@ my $build = Module::Build->new(
     license     => 'perl',
     dist_author => [
         'Andreas Marschke',
-        'Sven Nierlein',
+        'Christian Biamont <cbeam@su.se>',
         'Franz Skale',
         'Johan Wassberg <jocar@su.se>',
-        'Christian Biamont <cbeam@su.se>',
         'Micke Nordin <mikael.nordin@su.se>',
-        'Peter Valdemar Mørch'
+        'Peter Valdemar Mørch',
+        'Sven Nierlein'
     ],
     meta_merge => {
         resources => {
@@ -34,18 +34,18 @@ my $build = Module::Build->new(
         "Test::Pod::Coverage" => 0
     },
     requires => {
-        "perl"               => "5.010_000",
         "Convert::Binary::C" => 0,
-        "constant"           => 0,
         "Digest::CRC"        => 0,
         "IO::Socket"         => 0,
         "IO::Socket::INET6"  => 0,
         "Net::Subnet"        => 0,
-        "Time::HiRes"        => 0
+        "Time::HiRes"        => 0,
+        "constant"           => 0,
+        "perl"               => "5.010_000"
     },
+    create_license       => 1,
     dynamic_config       => 0,
     recursive_test_files => 1,
-    create_license       => 1,
     test_files           => 't/*.t xt/*.t',
 );
 
