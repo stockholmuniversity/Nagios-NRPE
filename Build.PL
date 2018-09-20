@@ -14,7 +14,8 @@ my $build = Module::Build->new(
         'Franz Skale',
         'Johan Wassberg <jocar@su.se>',
         'Christian Biamont <cbeam@su.se>',
-        'Micke Nordin <mikael.nordin@su.se>'
+        'Micke Nordin <mikael.nordin@su.se>',
+        'Peter Valdemar Mørch'
     ],
     meta_merge => {
         resources => {
