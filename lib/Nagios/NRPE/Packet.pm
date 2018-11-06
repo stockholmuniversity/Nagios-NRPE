@@ -285,6 +285,12 @@ sub assemble_v3
         $buffer = pack("Z1024", $options{check});
         $len = length($buffer) + 1;
     }
+    else
+    {
+        $buffer = pack("Z$len", $options{check});
+        $len = length($buffer) + 1;
+    }
+
     my $unpacked = {};
     $unpacked->{alignment}      = 0;
     $unpacked->{buffer_length}  = $len;
