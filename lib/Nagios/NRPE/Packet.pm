@@ -356,6 +356,11 @@ sub validate
 {
     my ($self, $packet) = @_;
     my $unpacked = $self->disassemble($packet, 1);
+    if (!$unpacked->{packet_version})
+    {
+        # If version is missing this is probably not an NRPE Packet.
+        return undef;
+    }
     my $checksum = $unpacked->{crc32_value};
     $unpacked->{crc32_value} = "\x00\x00\x00\x00";
     my $packed = $self->assemble(
@@ -394,14 +399,22 @@ sub disassemble
     }
     my $ver = unpack("n", $packet);
     my $unpacked = {};
-    if ($ver eq NRPE_PACKET_VERSION_2)
+    if ($ver)
     {
-        $unpacked = $self->disassemble_v2($packet);
+        if ($ver eq NRPE_PACKET_VERSION_2)
+        {
+            $unpacked = $self->disassemble_v2($packet);
+        }
+        else
+        {
+            $unpacked = $self->disassemble_v3($packet);
+        }
     }
     else
     {
-        $unpacked = $self->disassemble_v3($packet);
+        return undef;
     }
+
     return $unpacked;
 }
 
