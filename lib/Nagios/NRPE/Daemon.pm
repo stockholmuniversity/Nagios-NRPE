@@ -209,11 +209,8 @@ sub start
                  $peerhost = $1;
             };
             if (!$self->{matcher}->($peerhost)){
-                $socket->sockopt(SO_LINGER, pack("ii", 1, 0)) or die "sockopt: $!\n";
-                close($s);
-                $socket->close;
-                usleep(500);
-                $socket = $self->create_socket();
+                # We found that ignoring the request created the most
+                # consistant errors from the client-side - a time-out.
                 last;
             };
 
@@ -222,6 +219,12 @@ sub start
             my $unpacked_request = $packet->disassemble($request);
             my $buffer           = $unpacked_request->{buffer};
             my $version          = $unpacked_request->{packet_version};
+            if (!$version)
+	    {
+		# Ignore non valid NRPE Packets.
+		close($s);
+		last;
+	    };
             my ($command, @options) = split /!/, $buffer;
 
             my ($code, $return) = $self->{callback}($self, $command, @options);
