@@ -279,19 +279,20 @@ sub assemble_v3
 {
     my ($self, %options) = @_;
     my $buffer = $options{check};
-    my $len    = length($buffer) + 1;
-    if ($len < 1024)
-    {
-        $buffer = pack("Z1024", $options{check});
-        $len = length($buffer) + 1;
-    }
-    else
-    {
-        $buffer = pack("Z$len", $options{check});
-        $len = length($buffer) + 1;
-    }
+    my $len    = length($buffer);
 
-    my $unpacked = {};
+    # In order for crc32 calculation to be correct we need to pad the buffer with \0
+    # It seems that the buffer must be in multiples of 1024 so to achive this we use
+    # some integer arithmetic to find the next multiple of 1024 that can hold our message
+    my $packLen;
+    {
+        use integer;
+        $packLen = (($len / 1024) * 1024) + 1024;
+    }
+    $buffer = pack("Z$packLen", $buffer);
+    $len = length( $buffer) + 1;
+
+    my $unpacked;
     $unpacked->{alignment}      = 0;
     $unpacked->{buffer_length}  = $len;
     $unpacked->{buffer}         = $buffer;
