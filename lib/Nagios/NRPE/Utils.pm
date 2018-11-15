@@ -32,7 +32,7 @@ Create a hash with the specified error message using this format
 
 package Nagios::NRPE::Utils;
 
-our $VERSION = '2.0.1';
+our $VERSION = '2.0.2';
 use strict;
 use warnings;
 require Exporter;
