@@ -253,33 +253,47 @@ sub run
     }
     close($socket);
 
-    if (!$response)
+    if($response)
     {
-        $socket = $self->create_socket();
-        if (ref $socket eq "REF")
+        my $responsePacket = $packet->disassemble($response);
+        if ($responsePacket->{packet_version})
         {
-            return ($socket);
+            if ($responsePacket->{packet_version} == 3)
+            {
+                return $responsePacket;
+            }
         }
-        $packet   = Nagios::NRPE::Packet->new();
-        $response = undef;
-        $assembled = $packet->assemble(
-                                       type    => NRPE_PACKET_QUERY,
-                                       check   => $check,
-                                       version => NRPE_PACKET_VERSION_2
-                                      );
-
-        print $socket $assembled;
-        while (<$socket>)
+        else
         {
-            $response .= $_;
-        }
-        close($socket);
-
-        if (!$response)
-        {
-            my $reason = "No output from remote host";
+            my $reason = "Unknown response";
             return return_error($reason);
         }
+    }
+
+    $socket = $self->create_socket();
+    if (ref $socket eq "REF")
+    {
+        return ($socket);
+    }
+    $packet   = Nagios::NRPE::Packet->new();
+    $response = undef;
+    $assembled = $packet->assemble(
+                                   type    => NRPE_PACKET_QUERY,
+                                   check   => $check,
+                                   version => NRPE_PACKET_VERSION_2
+                                  );
+
+    print $socket $assembled;
+    while (<$socket>)
+    {
+        $response .= $_;
+    }
+    close($socket);
+
+    if (!$response)
+    {
+        my $reason = "No output from remote host";
+        return return_error($reason);
     }
     return $packet->disassemble($response);
 }
