@@ -150,10 +150,7 @@ sub create_socket
     }
     if ($self->{ssl})
     {
-        eval {
-            # required for new IO::Socket::SSL versions
-            use IO::Socket::SSL;
-        };
+        use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 
         $socket_opts{SSL_cipher_list} = $self->{SSL_cipher_list}
           || 'ALL:!MD5:@STRENGTH:@SECLEVEL=0';
