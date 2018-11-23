@@ -40,7 +40,7 @@ use warnings;
 use Carp;
 use IO::Socket ();
 use IO::Socket::INET6 ();
-use IO::Socket::SSL qw(SSL_VERIFY_NONE);
+use IO::Socket::SSL qw(SSL_VERIFY_NONE $SSL_ERROR);
 use Socket qw(SOCK_STREAM AF_INET6 AF_INET);
 use Nagios::NRPE::Utils qw(return_error);
 use Nagios::NRPE::Packet qw(NRPE_PACKET_VERSION_3
