@@ -107,6 +107,10 @@ sub new
     $self->{port}     = delete $hash{port}     || 5666;
     $self->{ssl}      = delete $hash{ssl}      || 0;
     $self->{timeout}  = delete $hash{timeout}  || 30;
+    $self->{SSL_cipher_list}  = delete $hash{SSL_cipher_list}  || "ALL:!MD5:@STRENGTH:@SECLEVEL=0";
+    $self->{SSL_verify_mode}  = delete $hash{SSL_verify_mode}  || SSL_VERIFY_NONE;
+    $self->{SSL_version}      = delete $hash{SSL_version}      || "TLSv1";
+
     bless $self, $class;
 }
 
@@ -154,10 +158,9 @@ sub create_socket
             use IO::Socket::SSL;
         };
 
-        $socket_opts{SSL_cipher_list} = $self->{SSL_cipher_list}
-          || 'ALL:!MD5:@STRENGTH:@SECLEVEL=0';
-        $socket_opts{SSL_verify_mode} = SSL_VERIFY_NONE;
-        $socket_opts{SSL_version}     = 'TLSv1';
+        $socket_opts{SSL_cipher_list} = $self->{SSL_cipher_list};
+        $socket_opts{SSL_verify_mode} = $self->{SSL_verify_mode};
+        $socket_opts{SSL_version} = $self->{SSL_version};
 
         $socket = IO::Socket::SSL->new(%socket_opts);
         if ($SSL_ERROR)
