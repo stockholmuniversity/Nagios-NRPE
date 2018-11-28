@@ -1,13 +1,20 @@
+2.0.6 2018-11-28
+ - Fix manifest and meta
+ 
 2.0.5 2018-11-28
  - Move podcover test to subfolder
  - Add timeout for SSL/TLS connections to stop possible DOS-attack 
+
 2.0.4 2018-11-23
  - Don't run covertest on end users
  - Handle servers that respond with a v2 packet to a v3 request (NSClient++)
+
 2.0.3 2018-11-21
  - Don't require Data::Dumper - trying to make CPAN Tester happy
+
 2.0.2 2018-11-15
  - Fix crc32 and padding problem
+
 2.0.1 2018-11-09
  - Create valid v3 Packets.
  - Don't crash on invalid Packets.
