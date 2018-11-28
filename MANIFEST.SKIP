@@ -75,7 +75,6 @@
 \bBuild.COM$
 \bBUILD.COM$
 \bbuild.com$
-^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
 \bNagios-NRPE-v?[\d\.\_]+
