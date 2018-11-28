@@ -154,6 +154,7 @@ sub new
     $self->{SSL_cert_file}   = delete $hash{SSL_cert_file}   || undef;
     $self->{SSL_key_file}    = delete $hash{SSL_key_file}    || undef;
     $self->{SSL_cipher_list} = delete $hash{SSL_cipher_list} || undef;
+    $self->{Timeout}         = delete $hash{Timeout}         || 1;
     $self->{commandlist}     = delete $hash{commandlist}     || {};
     $self->{callback}        = delete $hash{callback}        || sub { };
 
@@ -299,6 +300,7 @@ sub create_socket
                        Proto           => 'tcp',
                        Reuse           => 1,
                        SSL_verify_mode => 0x01,
+                       Timeout         => $self->{Timeout},
                        Type            => SOCK_STREAM
                       };
         if ($self->{SSL_cipher_list})
