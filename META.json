@@ -42,6 +42,7 @@
             "Digest::CRC" : "0",
             "IO::Socket" : "0",
             "IO::Socket::INET6" : "0",
+            "IO::Socket::SSL" : "0",
             "Net::SSLeay" : "0",
             "Net::Subnet" : "0",
             "Time::HiRes" : "0",
