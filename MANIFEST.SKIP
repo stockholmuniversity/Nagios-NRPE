@@ -7,7 +7,7 @@
 ,v$
 \B\.svn\b
 \B\.git\b
-\B\.gitignore\b
+\.gitignore$
 \b_darcs\b
 \B\.cvsignore$
 
@@ -79,3 +79,6 @@
 
 # Avoid archives of this distribution
 \bNagios-NRPE-v?[\d\.\_]+
+
+# Avoid author only test
+\bxt/AMARSCHKE/podcoverage\.t$

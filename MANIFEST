@@ -17,4 +17,3 @@ README
 share/nrpe.cfg
 share/protocol-nrpe.md
 t/packet.t
-xt/AMARSCHKE/podcoverage.t
