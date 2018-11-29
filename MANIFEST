@@ -1,3 +1,4 @@
+.gitignore
 AUTHORS
 bin/check_nrpe.pl
 bin/nrpe-server.pl
@@ -17,3 +18,4 @@ README
 share/nrpe.cfg
 share/protocol-nrpe.md
 t/packet.t
+xt/AMARSCHKE/podcoverage

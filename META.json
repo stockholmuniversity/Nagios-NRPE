@@ -54,23 +54,23 @@
    "provides" : {
       "Nagios::NRPE" : {
          "file" : "lib/Nagios/NRPE.pm",
-         "version" : "v2.0.7"
+         "version" : "v2.0.8"
       },
       "Nagios::NRPE::Client" : {
          "file" : "lib/Nagios/NRPE/Client.pm",
-         "version" : "v2.0.7"
+         "version" : "v2.0.8"
       },
       "Nagios::NRPE::Daemon" : {
          "file" : "lib/Nagios/NRPE/Daemon.pm",
-         "version" : "v2.0.7"
+         "version" : "v2.0.8"
       },
       "Nagios::NRPE::Packet" : {
          "file" : "lib/Nagios/NRPE/Packet.pm",
-         "version" : "v2.0.7"
+         "version" : "v2.0.8"
       },
       "Nagios::NRPE::Utils" : {
          "file" : "lib/Nagios/NRPE/Utils.pm",
-         "version" : "v2.0.7"
+         "version" : "v2.0.8"
       }
    },
    "release_status" : "stable",
@@ -84,5 +84,5 @@
          "url" : "git://github.com/stockholmuniversity/nagios-nrpe.git"
       }
    },
-   "version" : "v2.0.7"
+   "version" : "v2.0.8"
 }
