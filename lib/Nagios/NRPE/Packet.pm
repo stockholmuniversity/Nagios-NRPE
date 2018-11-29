@@ -186,7 +186,7 @@ the same terms as the Perl 5 programming language system itself.
 
 package Nagios::NRPE::Packet;
 
-our $VERSION = '2.0.6';
+our $VERSION = '2.0.7';
 
 use 5.010_000;
 require Exporter;
