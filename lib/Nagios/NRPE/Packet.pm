@@ -74,7 +74,7 @@ See CONSTANTS for options here.
 
 The TYPE of packet you wish to send, which is either QUERY or RESPONSE.
 
-See CONSTANTS for options here.
+See L</CONSTANTS> for options here.
 
  * result_code
 
