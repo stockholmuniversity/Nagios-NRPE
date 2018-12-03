@@ -274,7 +274,7 @@ sub commandlist
 =item create_socket()
 
 A shorthand function returning either an encrypted or unencrypted socket
-depending on wether ssl is set to 1 or 0.
+depending on whether ssl is set to 1 or 0.
 
 =back
 
