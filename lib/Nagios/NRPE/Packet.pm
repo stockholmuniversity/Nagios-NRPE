@@ -147,8 +147,8 @@ These constants can be exported upon request with the 'use' pragma like this:
 
 The value of the NRPE version you want/need to use.
 
-=item * QUERY_PACKET
-        RESPONSE_PACKET
+=item * NRPE_PACKET_QUERY
+        NRPE_PACKET_RESPONSE
 
 The packet type you want to send or recieve
 
