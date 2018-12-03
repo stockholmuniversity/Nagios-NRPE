@@ -74,7 +74,7 @@ See CONSTANTS for options here.
 
 The TYPE of packet you wish to send, which is either QUERY or RESPONSE.
 
-See CONSTANTS for options here.
+See L</CONSTANTS> for options here.
 
  * result_code
 
@@ -147,8 +147,8 @@ These constants can be exported upon request with the 'use' pragma like this:
 
 The value of the NRPE version you want/need to use.
 
-=item * QUERY_PACKET
-        RESPONSE_PACKET
+=item * NRPE_PACKET_QUERY
+        NRPE_PACKET_RESPONSE
 
 The packet type you want to send or recieve
 
