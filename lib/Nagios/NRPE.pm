@@ -10,7 +10,7 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
  my $client = Nagios::NRPE::Client->new( host => "localhost", check => 'check_cpu');
  my $response = $client->run();
  if(defined $response->{error}) {
-   print "ERROR: Couldn't run check ".$client->check()." because of: "$response->{reason}."\n";
+   print "ERROR: Couldn't run check ".$client->check()." because of: ".$response->{reason}."\n";
  } else {
    print $response->{status}."\n";
  }
@@ -35,11 +35,11 @@ Nagios::NRPE - A Nagios NRPE implementation in pure perl
                     Proto    => 'tcp',
                     Type     => SOCK_STREAM) or die "ERROR: $@ \n";
 
- print $socket $packet->assemble(type => QUERY_PACKET,
+ print $socket $packet->assemble(type => NRPE_PACKET_QUERY,
                               buffer => "check_load 1 2 3",
                               version => NRPE_PACKET_VERSION_3 );
 
- my $data = <$socket>
+ my $data = <$socket>;
  my $response = $packet->disassemble($data);
 
  print $response->{buffer};
