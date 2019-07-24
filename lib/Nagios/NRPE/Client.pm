@@ -271,7 +271,7 @@ sub run
     }
 
     $socket = $self->create_socket();
-    if (ref $socket eq "REF")
+    if (ref $socket eq "HASH")
     {
         return ($socket);
     }
