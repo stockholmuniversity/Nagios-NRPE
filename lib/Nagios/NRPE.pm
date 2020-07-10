@@ -63,6 +63,6 @@ package Nagios::NRPE;
 use strict;
 use warnings;
 
-our $VERSION = '2.0.12';
+our $VERSION = '2.0.13';
 
 1;

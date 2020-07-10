@@ -26,19 +26,19 @@ no_index:
 provides:
   Nagios::NRPE:
     file: lib/Nagios/NRPE.pm
-    version: v2.0.12
+    version: v2.0.13
   Nagios::NRPE::Client:
     file: lib/Nagios/NRPE/Client.pm
-    version: v2.0.12
+    version: v2.0.13
   Nagios::NRPE::Daemon:
     file: lib/Nagios/NRPE/Daemon.pm
-    version: v2.0.12
+    version: v2.0.13
   Nagios::NRPE::Packet:
     file: lib/Nagios/NRPE/Packet.pm
-    version: v2.0.12
+    version: v2.0.13
   Nagios::NRPE::Utils:
     file: lib/Nagios/NRPE/Utils.pm
-    version: v2.0.12
+    version: v2.0.13
 requires:
   Convert::Binary::C: 0
   Digest::CRC: 0
@@ -55,4 +55,4 @@ resources:
   homepage: https://github.com/stockholmuniversity/nagios-nrpe
   license: http://dev.perl.org/licenses/
   repository: git://github.com/stockholmuniversity/nagios-nrpe.git
-version: v2.0.12
+version: v2.0.13
