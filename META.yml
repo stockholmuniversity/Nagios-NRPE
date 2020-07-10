@@ -51,7 +51,8 @@ requires:
   constant: 0
   perl: 5.010_000
 resources:
-  homepage: http://github.com/stockholmuniversity/nagios-nrpe
+  bugtracker: http://github.com/stockholmuniversity/nagios-nrpe/issues
+  homepage: https://github.com/stockholmuniversity/nagios-nrpe
   license: http://dev.perl.org/licenses/
   repository: git://github.com/stockholmuniversity/nagios-nrpe.git
 version: v2.0.11

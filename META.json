@@ -75,13 +75,17 @@
    },
    "release_status" : "stable",
    "resources" : {
-      "homepage" : "http://github.com/stockholmuniversity/nagios-nrpe",
+      "bugtracker" : {
+         "web" : "https://github.com/stockholmuniversity/issues"
+      },
+      "homepage" : "https://github.com/stockholmuniversity/nagios-nrpe",
       "license" : [
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/stockholmuniversity/nagios-nrpe.git"
+         "url" : "git://github.com/stockholmuniversity/nagios-nrpe.git",
+         "web": "https://github.com/stockholmuniversity/nagios-nrpe"
       }
    },
    "version" : "v2.0.11"
