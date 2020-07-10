@@ -1,3 +1,6 @@
+2.0.12 2020-07-10
+ - No changes - just META information for CPAN
+
 2.0.11 2020-06-12
  - Use default SSL_version from IO::Socket::SSL
 
